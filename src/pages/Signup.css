@@ -144,6 +144,26 @@
   outline-offset: 2px;
 }
 
+.divider {
+  text-align: center;
+  margin: 20px 0;
+  color: gray;
+}
+
+.google-button {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  border-radius: 8px;
+}
 .form-message {
   margin: 0;
   padding: 10px 12px;

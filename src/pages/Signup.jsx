@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import "./Signup.css";
+import { FcGoogle } from "react-icons/fc";
 
 function Signup() {
   const [name, setName] = useState("");
@@ -9,6 +10,7 @@ function Signup() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -106,11 +108,22 @@ function Signup() {
               </button>
             </div>
           </div>
+          <div className="divider">
+            <span>OR</span>
+          </div>
+
+          <button
+            type="button"
+            className="google-button"
+          >
+            <FcGoogle />
+            Continue with Google
+          </button>
 
           {error && <p className="form-message form-message--error">{error}</p>}
 
-          <button type="submit" className="signup-button">
-            Create account
+          <button type="submit">
+            {loading ? "Creating..." : "Create Account"}
           </button>
 
           {success && <p className="form-message form-message--success">{success}</p>}
