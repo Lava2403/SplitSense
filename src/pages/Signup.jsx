@@ -1,14 +1,38 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { use, useState } from "react";
 import "./Signup.css";
 
 function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
+
+    if(name.trim() == ""){
+      setSuccess("");
+      setError("Name is required");
+      return;
+    }
+    if(email.trim() == ""){
+      setSuccess("");
+      setError("Email is required");
+      return;
+    }
+    if(password.length < 6){
+      setSuccess("");
+      setError("Password must be atleast 6 characters");
+      return;
+    }
+    setError("");
+    setSuccess("Account created successfully");
+    setName("");
+    setEmail("");
+    setPassword("");
     console.log("Name:", name);
     console.log("Email:", email);
     console.log("Password:", password);
@@ -51,17 +75,18 @@ function Signup() {
             <label htmlFor="signup-password">Password</label>
             <input
               id="signup-password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Create a password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               required
             />
           </div>
-
+          {error && <p>{error}</p>}
           <button type="submit" className="signup-button">
             Create account
           </button>
+          {success && <p>{success}</p>}
         </form>
 
         <p className="signup-footer">
