@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import OAuthSection from "../components/OAuthSection";
 import "./Login.css";
 
 function Login() {
@@ -20,6 +21,8 @@ function Login() {
           <h1>Welcome back</h1>
           <p>Sign in to your SplitSense account</p>
         </div>
+
+        <OAuthSection mode="login" />
 
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">

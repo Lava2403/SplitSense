@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import OAuthSection from "../components/OAuthSection";
 import "./Signup.css";
-import { FcGoogle } from "react-icons/fc";
 
 function Signup() {
   const [name, setName] = useState("");
@@ -33,6 +33,8 @@ function Signup() {
       return;
     }
 
+    setLoading(true);
+
     console.log("Name:", name);
     console.log("Email:", email);
     console.log("Password:", password);
@@ -43,6 +45,7 @@ function Signup() {
     setEmail("");
     setPassword("");
     setShowPassword(false);
+    setLoading(false);
   };
 
   return (
@@ -52,6 +55,8 @@ function Signup() {
           <h1>Create account</h1>
           <p>Join SplitSense and start splitting smarter</p>
         </div>
+
+        <OAuthSection mode="signup" />
 
         <form className="signup-form" onSubmit={handleSubmit}>
           <div className="form-group">
@@ -108,25 +113,16 @@ function Signup() {
               </button>
             </div>
           </div>
-          <div className="divider">
-            <span>OR</span>
-          </div>
-
-          <button
-            type="button"
-            className="google-button"
-          >
-            <FcGoogle />
-            Continue with Google
-          </button>
 
           {error && <p className="form-message form-message--error">{error}</p>}
 
-          <button type="submit">
-            {loading ? "Creating..." : "Create Account"}
+          <button type="submit" className="signup-button" disabled={loading}>
+            {loading ? "Creating..." : "Create account"}
           </button>
 
-          {success && <p className="form-message form-message--success">{success}</p>}
+          {success && (
+            <p className="form-message form-message--success">{success}</p>
+          )}
         </form>
 
         <p className="signup-footer">
