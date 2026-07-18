@@ -1,0 +1,10 @@
+{
+  "name": "splitsense",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "install:all": "npm install --prefix frontend && npm install --prefix backend"
+  }
+}
