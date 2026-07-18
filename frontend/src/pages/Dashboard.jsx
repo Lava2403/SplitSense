@@ -3,9 +3,11 @@ import Sidebar from "../components/Sidebar";
 import SummaryCard from "../components/SummaryCard";
 import ExpenseItem from "../components/ExpenseItem";
 import { getExpenses } from "../api/expenseApi";
+import { getStoredUser } from "../utils/auth";
 
 function Dashboard() {
   const [expenses, setExpenses] = useState([]);
+  const user = getStoredUser();
 
   useEffect(() => {
     async function loadExpenses() {
@@ -28,7 +30,7 @@ function Dashboard() {
           <div>
 
             <h1 className="text-3xl font-bold text-emerald-800">
-              Welcome Back, User
+              Welcome Back, {user?.name || "User"}
             </h1>
 
             <p className="text-gray-500">
