@@ -1,8 +1,10 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import Sidebar from "../components/Sidebar";
 import ExpenseList from "../components/group/ExpenseList";
 import groupBg from "../assets/pic.png";
 import { getGroup } from "../api/groupApi";
+import { getStoredUser } from "../utils/auth";
 
 function GroupPage() {
   const { id } = useParams();
@@ -10,7 +12,7 @@ function GroupPage() {
   const [activeTab, setActiveTab] =
     useState("expenses");
 
-  const currentUser = "Lavanya";
+  const currentUser = getStoredUser()?.name || "User";
 
   const [group, setGroup] = useState(null);
 
@@ -127,7 +129,11 @@ if (!group) {
     youAreOwed - youOwe;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="flex bg-slate-100 min-h-screen">
+      <Sidebar />
+
+      <main className="flex-1 p-6">
+    <div className="min-h-screen">
 
       {/* Header */}
 
@@ -364,6 +370,8 @@ if (!group) {
 
       </div>
 
+    </div>
+      </main>
     </div>
   );
 }
