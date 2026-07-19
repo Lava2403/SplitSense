@@ -8,9 +8,6 @@ const jwt = require("jsonwebtoken");
 const auth = require("./middleware/auth");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
-const express = require("express");
-const cors = require("cors");
-require("dotenv").config();
 
 const authRoutes = require("./src/routes/authRoutes");
 const expenseRoutes = require("./src/routes/expenseRoutes");
@@ -272,17 +269,18 @@ app.post("/api/reset-password/:token", async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server running on port ${process.env.PORT}`);
+// Route files
 app.use("/api/auth", authRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/groups", groupRoutes);
 
+// Home Route
 app.get("/", (req, res) => {
   res.send("SplitSense Backend Running 🚀");
 });
 
-const PORT = process.env.PORT || 5000;
+// Start Server
+const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
