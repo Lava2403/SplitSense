@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import OAuthSection from "../components/OAuthSection";
 import "./Login.css";
@@ -7,11 +7,50 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+  
+  const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Email:", email);
-    console.log("Password:", password);
+    if (!email || !password) {
+      setError("All fields are required");
+      return;
+    }
+
+    setLoading(true);
+    const response = await fetch("http://localhost:8000/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setError("");
+      setSuccess(data.message);
+
+      // Save JWT
+      localStorage.setItem("token", data.token);
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1500);
+
+    } else {
+      setSuccess("");
+      setError(data.message);
+    }
+    setLoading(false);
+
   };
 
   return (
@@ -66,6 +105,12 @@ function Login() {
                 )}
               </button>
             </div>
+          </div>
+
+          <div style={{ textAlign: "right", marginTop: "8px" }}>
+            <Link to="/forgot-password">
+              Forgot Password?
+            </Link>
           </div>
 
           <button type="submit" className="login-button">

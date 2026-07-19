@@ -1,9 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import OAuthSection from "../components/OAuthSection";
 import "./Signup.css";
 
 function Signup() {
+  const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,7 +14,7 @@ function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (name.trim() === "") {
@@ -35,16 +37,38 @@ function Signup() {
 
     setLoading(true);
 
-    console.log("Name:", name);
-    console.log("Email:", email);
-    console.log("Password:", password);
+    const response = await fetch("http://localhost:8000/api/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+      }),
+    });
 
-    setError("");
-    setSuccess("Account created successfully!");
-    setName("");
-    setEmail("");
-    setPassword("");
-    setShowPassword(false);
+    const data = await response.json();
+    console.log("Status:", response.status);
+    console.log("Response:", data);
+
+    if (response.ok) {
+      setError("");
+      setSuccess(data.message);
+
+      setName("");
+      setEmail("");
+      setPassword("");
+      setShowPassword(false);
+
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
+    } else {
+      setSuccess("");
+      setError(data.message);
+    }
     setLoading(false);
   };
 
