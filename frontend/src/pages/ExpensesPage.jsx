@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
-import groupBg from "../assets/pic.png";
 import { getExpenses } from "../api/expenseApi";
 import { getGroups } from "../api/groupApi";
 import { getStoredUser } from "../utils/auth";
@@ -101,12 +100,7 @@ function ExpensesPage() {
       <Sidebar />
 
       <div className="flex-1 p-8">
-        <div
-          className="rounded-2xl shadow mb-8 bg-cover bg-center p-8 text-white"
-          style={{
-            backgroundImage: `url(${groupBg})`,
-          }}
-        >
+        <div className="rounded-2xl shadow mb-8 p-8 text-white bg-gradient-to-r from-emerald-700 to-slate-800">
           <h1 className="text-4xl font-bold">My Expenses</h1>
 
           <p className="mt-2 text-white/80">

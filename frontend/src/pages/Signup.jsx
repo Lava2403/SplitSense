@@ -57,7 +57,13 @@ function Signup() {
           <p>Join SplitSense and start splitting smarter</p>
         </div>
 
-        <OAuthSection mode="signup" />
+        <OAuthSection
+          mode="signup"
+          onSuccess={(data) => {
+            setAuth(data);
+            navigate("/dashboard");
+          }}
+        />
 
         <form className="signup-form" onSubmit={handleSubmit}>
           <div className="form-group">

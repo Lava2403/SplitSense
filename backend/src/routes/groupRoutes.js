@@ -1,4 +1,5 @@
 const express = require("express");
+const { optionalAuth } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -26,7 +27,7 @@ router.get("/:id", getGroupById);
 // CREATE GROUP
 // POST /api/groups
 // ======================================
-router.post("/", createGroup);
+router.post("/", optionalAuth, createGroup);
 
 // ======================================
 // UPDATE GROUP

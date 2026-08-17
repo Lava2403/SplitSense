@@ -1,43 +1,50 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ExpenseList from "../components/group/ExpenseList";
-import groupBg from "../assets/pic.png";
+import ExpenseFormModal from "../components/group/ExpenseFormModal";
+import Sidebar from "../components/Sidebar";
 import { getGroup } from "../api/groupApi";
+import { addExpense, deleteExpense, updateExpense } from "../api/expenseApi";
+import { getStoredUser } from "../utils/auth";
+import { formatAmount, getUserBalances } from "../utils/balances";
 
 function GroupPage() {
   const { id } = useParams();
+  const currentUser = getStoredUser();
 
-  const [activeTab, setActiveTab] =
-    useState("expenses");
-
-  const currentUser = "Lavanya";
-
+  const [activeTab, setActiveTab] = useState("expenses");
   const [group, setGroup] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [editingExpense, setEditingExpense] = useState(null);
 
-useEffect(() => {
-  async function fetchGroup() {
+  const fetchGroup = async () => {
     try {
       const res = await getGroup(id);
       setGroup(res.data);
     } catch (err) {
       console.error(err);
+      setGroup(null);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchGroup();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <h1 className="text-2xl font-bold">
+          Loading...
+        </h1>
+      </div>
+    );
   }
 
-  fetchGroup();
-}, [id]);
-
-  if (group === null) {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-2xl font-bold">
-        Loading...
-      </h1>
-    </div>
-  );
-}
-
-if (!group) {
+  if (!group) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <h1 className="text-2xl font-bold">
@@ -47,110 +54,68 @@ if (!group) {
     );
   }
 
-  // -----------------------------------
-  // GROUP STATS
-  // -----------------------------------
+  const expenses = group.expenses || [];
+  const members = group.memberDetails?.length
+    ? group.memberDetails
+    : (group.members || []).map((name, index) => ({ id: name, name }));
 
-  const totalExpense =
-    group.expenses.reduce(
-      (sum, expense) =>
-        sum + expense.amount,
-      0
-    );
+  const totalExpense = expenses.reduce(
+    (sum, expense) => sum + Number(expense.amount || 0),
+    0
+  );
 
-  const expenseCount =
-    group.expenses.length;
+  const expenseCount = expenses.length;
 
-  const largestExpense =
-    Math.max(
-      ...group.expenses.map(
-        (expense) => expense.amount
-      )
-    );
+  const largestExpense = expenses.length
+    ? Math.max(...expenses.map((expense) => Number(expense.amount || 0)))
+    : 0;
 
-  // -----------------------------------
-  // BALANCE CALCULATION
-  // -----------------------------------
+  const { youOwe, youAreOwed, balances, netBalance } = getUserBalances(
+    expenses,
+    currentUser?.name
+  );
 
-  let youOwe = 0;
-  let youAreOwed = 0;
-
-  const balances = {};
-
-  group.expenses.forEach((expense) => {
-
-    const share =
-      expense.amount /
-      expense.participants.length;
-
-    if (
-      expense.paidBy === currentUser
-    ) {
-
-      expense.participants.forEach(
-        (person) => {
-
-          if (
-            person !== currentUser
-          ) {
-
-            balances[person] =
-              (balances[person] || 0)
-              + share;
-
-            youAreOwed += share;
-          }
-        }
-      );
+  const handleSaveExpense = async (expenseData) => {
+    if (editingExpense) {
+      await updateExpense(editingExpense.id, expenseData);
+    } else {
+      await addExpense({
+        ...expenseData,
+        group_id: Number(id),
+      });
     }
 
-    else if (
-      expense.participants.includes(
-        currentUser
-      )
-    ) {
+    setEditingExpense(null);
+    await fetchGroup();
+  };
 
-      balances[
-        expense.paidBy
-      ] =
-        (balances[
-          expense.paidBy
-        ] || 0)
-        - share;
-
-      youOwe += share;
-    }
-
-  });
-
-  const netBalance =
-    youAreOwed - youOwe;
+  const handleDeleteExpense = async (expenseId) => {
+    const confirmed = window.confirm("Delete this expense?");
+    if (!confirmed) return;
+    await deleteExpense(expenseId);
+    await fetchGroup();
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="flex bg-gray-100 min-h-screen">
 
-      {/* Header */}
+      <Sidebar />
 
-      <div
-        className="rounded-2xl p-8 shadow mb-6 text-white bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${groupBg})`
-        }}
-      >
+      <div className="flex-1 p-6">
+
+      <div className="rounded-2xl p-8 shadow mb-6 text-white bg-gradient-to-r from-emerald-700 to-slate-800">
         <h1 className="text-4xl font-bold">
           {group.name}
         </h1>
 
         <p className="mt-2">
-          {group.members.length} Members
+          {members.length} Members
         </p>
 
         <p className="text-sm mt-1 opacity-80">
-          Group ID: {group.id}
+          {group.description || `Group ID: ${group.id}`}
         </p>
       </div>
-
-      {/* Summary Cards */}
 
       <div className="grid grid-cols-3 gap-4 mb-6">
 
@@ -160,7 +125,7 @@ if (!group) {
           </p>
 
           <h2 className="text-2xl font-bold">
-            ₹{totalExpense}
+            {formatAmount(totalExpense)}
           </h2>
         </div>
 
@@ -181,23 +146,42 @@ if (!group) {
           </p>
 
           <h2 className="text-2xl font-bold">
-            ₹{largestExpense}
+            {formatAmount(largestExpense)}
           </h2>
         </div>
 
       </div>
 
-      {/* Action Buttons */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="bg-white p-4 rounded-xl shadow">
+          <p className="text-gray-500">You Owe</p>
+          <h2 className="text-2xl font-bold text-red-500">{formatAmount(youOwe)}</h2>
+        </div>
+        <div className="bg-white p-4 rounded-xl shadow">
+          <p className="text-gray-500">You Are Owed</p>
+          <h2 className="text-2xl font-bold text-emerald-600">{formatAmount(youAreOwed)}</h2>
+        </div>
+        <div className="bg-white p-4 rounded-xl shadow">
+          <p className="text-gray-500">Your Net</p>
+          <h2 className={`text-2xl font-bold ${netBalance >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+            {formatAmount(netBalance)}
+          </h2>
+        </div>
+      </div>
 
       <div className="flex gap-4 mb-6">
 
-        <button className="bg-blue-900 text-white px-5 py-2 rounded-lg hover:bg-blue-800">
+        <button
+          onClick={() => {
+            setEditingExpense(null);
+            setShowExpenseModal(true);
+          }}
+          className="bg-blue-900 text-white px-5 py-2 rounded-lg hover:bg-blue-800"
+        >
           Add Expense  +
         </button>
 
       </div>
-
-      {/* Tabs */}
 
       <div className="bg-white rounded-xl shadow">
 
@@ -246,8 +230,6 @@ if (!group) {
 
         <div className="p-6">
 
-          {/* Expenses */}
-
           {activeTab === "expenses" && (
 
             <div>
@@ -257,14 +239,17 @@ if (!group) {
               </h2>
 
               <ExpenseList
-                expenses={group.expenses}
+                expenses={expenses}
+                onEdit={(expense) => {
+                  setEditingExpense(expense);
+                  setShowExpenseModal(true);
+                }}
+                onDelete={handleDeleteExpense}
               />
 
             </div>
 
           )}
-
-          {/* Balances */}
 
           {activeTab === "balances" && (
 
@@ -329,8 +314,6 @@ if (!group) {
 
           )}
 
-          {/* Members */}
-
           {activeTab === "members" && (
 
             <div>
@@ -341,14 +324,17 @@ if (!group) {
 
               <div className="space-y-3">
 
-                {group.members.map(
+                {members.map(
                   (member) => (
 
                     <div
-                      key={member}
+                      key={member.id || member.name || member}
                       className="bg-gray-50 p-3 rounded-lg"
                     >
-                      {member}
+                      <p className="font-medium">{member.name || member}</p>
+                      {member.email && (
+                        <p className="text-sm text-gray-500">{member.email}</p>
+                      )}
                     </div>
 
                   )
@@ -364,6 +350,19 @@ if (!group) {
 
       </div>
 
+      <ExpenseFormModal
+        isOpen={showExpenseModal}
+        onClose={() => {
+          setShowExpenseModal(false);
+          setEditingExpense(null);
+        }}
+        onSave={handleSaveExpense}
+        members={group.memberDetails || []}
+        currentUser={currentUser}
+        expense={editingExpense}
+      />
+
+      </div>
     </div>
   );
 }

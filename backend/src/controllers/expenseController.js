@@ -13,7 +13,7 @@ const getExpenses = async (req, res) => {
       data: expenses,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
@@ -39,7 +39,7 @@ const getExpenseById = async (req, res) => {
       data: expense,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
@@ -59,7 +59,7 @@ const createExpense = async (req, res) => {
       data: newExpense,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
@@ -89,7 +89,7 @@ const updateExpense = async (req, res) => {
       data: updatedExpense,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
@@ -116,7 +116,7 @@ const deleteExpense = async (req, res) => {
       data: deletedExpense,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });

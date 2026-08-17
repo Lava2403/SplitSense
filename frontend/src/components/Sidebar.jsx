@@ -57,6 +57,7 @@ function Sidebar() {
         </button>
 
         <button
+          onClick={() => navigate("/settlements")}
           className="flex items-center gap-3 hover:text-emerald-400"
         >
           <HandCoins size={20} />
@@ -64,6 +65,7 @@ function Sidebar() {
         </button>
 
         <button
+          onClick={() => navigate("/insights")}
           className="flex items-center gap-3 hover:text-emerald-400"
         >
           <Brain size={20} />
@@ -71,6 +73,7 @@ function Sidebar() {
         </button>
 
         <button
+          onClick={() => navigate("/profile")}
           className="flex items-center gap-3 hover:text-emerald-400"
         >
           <User size={20} />

@@ -1,3 +1,5 @@
+import { formatExpenseDate } from "../../utils/balances";
+
 function ExpenseCard({
   expense,
   onEdit,
@@ -28,7 +30,7 @@ function ExpenseCard({
             </p>
 
             <p className="text-gray-400 text-sm">
-              {expense.date}
+              {formatExpenseDate(expense.date)}
             </p>
 
             {expense.participants && (

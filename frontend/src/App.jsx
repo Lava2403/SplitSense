@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import GroupPage from "./pages/GroupPage";
 import ExpensesPage from "./pages/ExpensesPage";
@@ -8,6 +10,8 @@ import TestApi from "./pages/TestApi";
 import GroupsPage from "./pages/GroupsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { isAuthenticated } from "./utils/auth";
+import SettlementPage from "./pages/SettlementPage";
+
 
 function PublicOnlyRoute({ children }) {
   if (isAuthenticated()) {
@@ -42,6 +46,17 @@ function App() {
         />
 
         <Route
+          path="/forgot-password"
+          element={
+            <PublicOnlyRoute>
+              <ForgotPassword />
+            </PublicOnlyRoute>
+          }
+        />
+
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+        <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
@@ -73,6 +88,15 @@ function App() {
           element={
             <ProtectedRoute>
               <ExpensesPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settlements"
+          element={
+            <ProtectedRoute>
+              <SettlementPage />
             </ProtectedRoute>
           }
         />

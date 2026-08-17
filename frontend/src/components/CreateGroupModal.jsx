@@ -6,27 +6,39 @@ function CreateGroupModal({
   onCreate,
 }) {
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [members, setMembers] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     const memberArray = members
       .split(",")
       .map((m) => m.trim())
       .filter((m) => m !== "");
 
-    onCreate({
-      name,
-      members: memberArray,
-    });
+    setSaving(true);
 
-    setName("");
-    setMembers("");
+    try {
+      await onCreate({
+        name,
+        description,
+        members: memberArray,
+      });
 
-    onClose();
+      setName("");
+      setDescription("");
+      setMembers("");
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to create group");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -63,13 +75,30 @@ function CreateGroupModal({
           <div>
 
             <label className="font-medium">
+              Description
+            </label>
+
+            <input
+              className="w-full border rounded-lg p-3 mt-2"
+              value={description}
+              onChange={(e) =>
+                setDescription(e.target.value)
+              }
+              placeholder="Optional"
+            />
+
+          </div>
+
+          <div>
+
+            <label className="font-medium">
               Members
             </label>
 
             <textarea
               rows="4"
               className="w-full border rounded-lg p-3 mt-2"
-              placeholder="Lavanya, Ayush, Rahul"
+              placeholder="Emails or names of people who already have accounts"
               value={members}
               onChange={(e) =>
                 setMembers(e.target.value)
@@ -77,6 +106,8 @@ function CreateGroupModal({
             />
 
           </div>
+
+          {error && <p className="text-red-600 text-sm">{error}</p>}
 
           <div className="flex justify-end gap-3">
 
@@ -90,9 +121,10 @@ function CreateGroupModal({
 
             <button
               type="submit"
-              className="px-5 py-2 rounded-lg bg-emerald-600 text-white"
+              disabled={saving}
+              className="px-5 py-2 rounded-lg bg-emerald-600 text-white disabled:opacity-70"
             >
-              Create Group
+              {saving ? "Creating..." : "Create Group"}
             </button>
 
           </div>

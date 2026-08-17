@@ -51,15 +51,21 @@ const getGroupById = async (req, res) => {
 // ===============================
 const createGroup = async (req, res) => {
   try {
-    const group = await groupService.createGroup(req.body);
+    const group = await groupService.createGroup({
+      ...req.body,
+      created_by: req.body.created_by || req.user?.id,
+    });
 
     res.status(201).json({
       success: true,
       message: "Group created successfully",
       data: group,
     });
+
   } catch (error) {
-    res.status(500).json({
+    console.error(error);
+
+    res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });

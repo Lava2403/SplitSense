@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import CreateGroupModal from "../components/CreateGroupModal";
+import GroupCard from "../components/GroupCard";
+import { getStoredUser } from "../utils/auth";
+import { getGroupTotals } from "../utils/balances";
 
 import {
   getGroups,
@@ -12,13 +14,13 @@ function GroupsPage() {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-
-  const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+  const user = getStoredUser();
 
   const fetchGroups = async () => {
     try {
       const res = await getGroups();
-      setGroups(res.data);
+      setGroups(res.data || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -31,17 +33,27 @@ function GroupsPage() {
   }, []);
 
   const handleCreateGroup = async (groupData) => {
-    try {
-      await createGroup(groupData);
+    await createGroup({
+      ...groupData,
+      created_by: user?.id,
+      members: [user?.id, ...(groupData.members || [])],
+    });
 
-      await fetchGroups();
-
-      setShowModal(false);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to create group");
-    }
+    await fetchGroups();
+    setShowModal(false);
   };
+
+  const filteredGroups = groups.filter((group) => {
+    const query = search.trim().toLowerCase();
+    if (!query) return true;
+
+    const memberNames = (group.members || []).join(" ").toLowerCase();
+    return (
+      group.name?.toLowerCase().includes(query) ||
+      group.description?.toLowerCase().includes(query) ||
+      memberNames.includes(query)
+    );
+  });
 
   if (loading) {
     return (
@@ -81,51 +93,40 @@ function GroupsPage() {
 
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
+        <input
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Search groups or members"
+          className="w-full max-w-md mb-8 border rounded-lg p-3 bg-white"
+        />
 
-          {groups.map((group) => {
+        {filteredGroups.length === 0 ? (
+          <p className="text-gray-500">
+            {groups.length === 0
+              ? "No groups yet. Create your first group to get started."
+              : "No groups match your search."}
+          </p>
+        ) : (
+          <div className="grid grid-cols-3 gap-6">
+            {filteredGroups.map((group) => {
+              const totals = getGroupTotals(group, user?.name);
 
-            const totalExpense = group.expenses.reduce(
-              (sum, expense) => sum + expense.amount,
-              0
-            );
-
-            return (
-
-              <div
-                key={group.id}
-                onClick={() => navigate(`/group/${group.id}`)}
-                className="bg-white rounded-xl shadow hover:shadow-lg transition cursor-pointer p-6"
-              >
-
-                <h2 className="text-2xl font-bold">
-                  {group.name}
-                </h2>
-
-                <p className="text-gray-500 mt-2">
-                  {group.members.length} Members
-                </p>
-
-                <p className="mt-6 text-lg font-semibold text-emerald-600">
-                  ₹{totalExpense}
-                </p>
-
-                <p className="text-gray-400 text-sm">
-                  Total Expenses
-                </p>
-
-                <div className="mt-6">
-                  <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm">
-                    {group.expenses.length} Expenses
-                  </span>
-                </div>
-
-              </div>
-
-            );
-          })}
-
-        </div>
+              return (
+                <GroupCard
+                  key={group.id}
+                  id={group.id}
+                  name={group.name}
+                  members={totals.memberCount}
+                  totalExpense={totals.totalExpense.toFixed(0)}
+                  youOwe={totals.youOwe}
+                  youAreOwed={totals.youAreOwed}
+                  expenseCount={totals.expenseCount}
+                />
+              );
+            })}
+          </div>
+        )}
 
       </div>
 

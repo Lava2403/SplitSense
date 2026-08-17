@@ -1,30 +1,45 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
-import OAuthSection from "../components/OAuthSection";
-import { login as loginRequest } from "../api/authApi";
-import { setAuth } from "../utils/auth";
+import { resetPassword as resetPasswordRequest } from "../api/authApi";
 import "./Login.css";
 
-function Login() {
+function ResetPassword() {
+  const { token } = useParams();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+    setSuccess("");
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const response = await loginRequest({ email, password });
-      setAuth(response.data);
-      navigate("/dashboard");
+      const response = await resetPasswordRequest({ token, password });
+      setSuccess(
+        response.message || "Password updated. You can now log in."
+      );
+      setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       setError(
-        err.response?.data?.message || "Unable to log in. Please try again."
+        err.response?.data?.message ||
+          "Unable to reset password. The link may be invalid or expired."
       );
     } finally {
       setLoading(false);
@@ -35,38 +50,18 @@ function Login() {
     <div className="login-page">
       <div className="login-card">
         <div className="login-header">
-          <h1>Welcome back</h1>
-          <p>Sign in to your SplitSense account</p>
+          <h1>Set a new password</h1>
+          <p>Choose a password you have not used before</p>
         </div>
-
-        <OAuthSection
-          mode="login"
-          onSuccess={(data) => {
-            setAuth(data);
-            navigate("/dashboard");
-          }}
-        />
 
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="login-email">Email</label>
-            <input
-              id="login-email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="login-password">Password</label>
+            <label htmlFor="reset-password">New password</label>
             <div className="password-input-wrapper">
               <input
-                id="login-password"
+                id="reset-password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
+                placeholder="At least 6 characters"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
@@ -91,24 +86,34 @@ function Login() {
             </div>
           </div>
 
-          <div className="login-forgot">
-            <Link to="/forgot-password">Forgot password?</Link>
+          <div className="form-group">
+            <label htmlFor="reset-confirm-password">Confirm password</label>
+            <input
+              id="reset-confirm-password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Re-enter your new password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              required
+            />
           </div>
 
           {error && <p className="form-message form-message--error">{error}</p>}
+          {success && (
+            <p className="form-message form-message--success">{success}</p>
+          )}
 
           <button type="submit" className="login-button" disabled={loading}>
-            {loading ? "Signing in..." : "Log in"}
+            {loading ? "Updating..." : "Update password"}
           </button>
         </form>
 
         <p className="login-footer">
-          Don&apos;t have an account?{" "}
-          <Link to="/signup">Sign up</Link>
+          Back to <Link to="/login">log in</Link>
         </p>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default ResetPassword;
