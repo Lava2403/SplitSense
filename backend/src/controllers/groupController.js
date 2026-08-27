@@ -1,11 +1,11 @@
 const groupService = require("../services/groupService");
 
 // ===============================
-// GET ALL GROUPS
+// GET ALL GROUPS FOR LOGGED-IN USER
 // ===============================
 const getGroups = async (req, res) => {
   try {
-    const groups = await groupService.getAllGroups();
+    const groups = await groupService.getAllGroups(req.user.id);
 
     res.status(200).json({
       success: true,
@@ -13,7 +13,7 @@ const getGroups = async (req, res) => {
       data: groups,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
@@ -25,12 +25,15 @@ const getGroups = async (req, res) => {
 // ===============================
 const getGroupById = async (req, res) => {
   try {
-    const group = await groupService.getGroupById(req.params.id);
+    const group = await groupService.getGroupById(
+      req.params.id,
+      req.user.id
+    );
 
     if (!group) {
       return res.status(404).json({
         success: false,
-        message: "Group not found",
+        message: "Group not found or you do not have access to it.",
       });
     }
 
@@ -39,7 +42,7 @@ const getGroupById = async (req, res) => {
       data: group,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
@@ -53,18 +56,54 @@ const createGroup = async (req, res) => {
   try {
     const group = await groupService.createGroup({
       ...req.body,
-      created_by: req.body.created_by || req.user?.id,
+
+      // Always use logged-in user as creator.
+      // Never trust created_by from frontend.
+      created_by: req.user.id,
     });
 
     res.status(201).json({
       success: true,
-      message: "Group created successfully",
+      message: "Group created successfully.",
       data: group,
     });
-
   } catch (error) {
-    console.error(error);
+    console.error("Create group error:", error);
 
+    res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ===============================
+// ADD MEMBER TO GROUP
+// ===============================
+const addMemberToGroup = async (req, res) => {
+  try {
+    const groupId = Number(req.params.id);
+    const { email } = req.body;
+
+    if (!email?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Member email is required.",
+      });
+    }
+
+    const member = await groupService.addMemberToGroup(
+      groupId,
+      email,
+      req.user.id
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "Member added successfully.",
+      data: member,
+    });
+  } catch (error) {
     res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
@@ -79,23 +118,24 @@ const updateGroup = async (req, res) => {
   try {
     const group = await groupService.updateGroup(
       req.params.id,
-      req.body
+      req.body,
+      req.user.id
     );
 
     if (!group) {
       return res.status(404).json({
         success: false,
-        message: "Group not found",
+        message: "Group not found or you do not have permission to update it.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Group updated successfully",
+      message: "Group updated successfully.",
       data: group,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
@@ -107,22 +147,25 @@ const updateGroup = async (req, res) => {
 // ===============================
 const deleteGroup = async (req, res) => {
   try {
-    const group = await groupService.deleteGroup(req.params.id);
+    const group = await groupService.deleteGroup(
+      req.params.id,
+      req.user.id
+    );
 
     if (!group) {
       return res.status(404).json({
         success: false,
-        message: "Group not found",
+        message: "Group not found or you do not have permission to delete it.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Group deleted successfully",
+      message: "Group deleted successfully.",
       data: group,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
@@ -133,6 +176,7 @@ module.exports = {
   getGroups,
   getGroupById,
   createGroup,
+  addMemberToGroup,
   updateGroup,
   deleteGroup,
 };

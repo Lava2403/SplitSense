@@ -1,5 +1,7 @@
 const express = require("express");
-const authenticate = require("../middleware/authMiddleware");
+
+const authenticate = require("../../middleware/auth");
+
 const {
   register,
   login,
@@ -13,13 +15,17 @@ const {
 
 const router = express.Router();
 
+// Public routes
 router.post("/register", register);
 router.post("/login", login);
-router.get("/me", authenticate, getProfile);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
+
 router.get("/google-config", googleConfig);
 router.post("/google", googleLogin);
+
+// Protected routes
+router.get("/me", authenticate, getProfile);
 router.get("/users", authenticate, listUsers);
 
 module.exports = router;

@@ -1,7 +1,6 @@
 const express = require("express");
-const { optionalAuth } = require("../middleware/authMiddleware");
 
-const router = express.Router();
+const authenticate = require("../middleware/authMiddleware");
 
 const {
   getGroups,
@@ -9,36 +8,21 @@ const {
   createGroup,
   updateGroup,
   deleteGroup,
+  addMemberToGroup,
 } = require("../controllers/groupController");
 
-// ======================================
-// GET ALL GROUPS
-// GET /api/groups
-// ======================================
-router.get("/", getGroups);
+const router = express.Router();
 
-// ======================================
-// GET SINGLE GROUP
-// GET /api/groups/:id
-// ======================================
+// Every group route requires login
+router.use(authenticate);
+
+router.get("/", getGroups);
 router.get("/:id", getGroupById);
 
-// ======================================
-// CREATE GROUP
-// POST /api/groups
-// ======================================
-router.post("/", optionalAuth, createGroup);
+router.post("/", createGroup);
+router.post("/:id/members", addMemberToGroup);
 
-// ======================================
-// UPDATE GROUP
-// PUT /api/groups/:id
-// ======================================
 router.put("/:id", updateGroup);
-
-// ======================================
-// DELETE GROUP
-// DELETE /api/groups/:id
-// ======================================
 router.delete("/:id", deleteGroup);
 
 module.exports = router;

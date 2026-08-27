@@ -93,10 +93,13 @@ const forgotPassword = async (req, res) => {
       });
     }
 
-    const result = await authService.requestPasswordReset(email);
-    const genericMessage =
-      "If an account exists for that email, you can reset your password.";
+    const result =
+      await authService.requestPasswordReset(email);
 
+    const genericMessage =
+      "If an account exists for that email, a password reset link has been sent.";
+
+    // Do not reveal whether the email exists
     if (!result.requested) {
       return res.status(200).json({
         success: true,
@@ -104,24 +107,36 @@ const forgotPassword = async (req, res) => {
       });
     }
 
-    const emailResult = await authService.sendResetEmail({
-      to: result.email,
-      resetLink: result.resetLink,
-    });
+    const emailResult =
+      await authService.sendResetEmail({
+        to: result.email,
+        resetLink: result.resetLink,
+      });
 
-    const resetLinkMessage = emailResult.sent
-      ? "If an account exists for that email, we sent a reset link."
-      : emailResult.error
-        ? "We could not send the email. Use the reset link below to continue."
-        : genericMessage;
+    // IMPORTANT:
+    // NEVER send resetLink back to frontend
+    if (!emailResult.sent) {
+      console.error(
+        "Failed to send reset email:",
+        emailResult.error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "We could not send the password reset email. Please try again later.",
+      });
+    }
 
     return res.status(200).json({
       success: true,
-      message: resetLinkMessage,
-      data: emailResult.sent ? undefined : { resetLink: result.resetLink },
+      message: genericMessage,
     });
+
   } catch (error) {
-    res.status(error.statusCode || 500).json({
+    res.status(
+      error.statusCode || 500
+    ).json({
       success: false,
       message: error.message,
     });

@@ -4,8 +4,14 @@ const USER_KEY = "splitsense_user";
 export const getToken = () => localStorage.getItem(TOKEN_KEY);
 
 export const getStoredUser = () => {
-  const rawUser = localStorage.getItem(USER_KEY);
-  return rawUser ? JSON.parse(rawUser) : null;
+  try {
+    const rawUser = localStorage.getItem(USER_KEY);
+
+    return rawUser ? JSON.parse(rawUser) : null;
+  } catch {
+    clearAuth();
+    return null;
+  }
 };
 
 export const setAuth = ({ token, user }) => {

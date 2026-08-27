@@ -7,14 +7,12 @@ function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [resetLink, setResetLink] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
     setSuccess("");
-    setResetLink("");
     setLoading(true);
 
     try {
@@ -23,9 +21,7 @@ function ForgotPassword() {
         response.message ||
           "If an account exists for that email, you can reset your password."
       );
-      if (response.data?.resetLink) {
-        setResetLink(response.data.resetLink);
-      }
+      
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -61,15 +57,6 @@ function ForgotPassword() {
           {success && (
             <p className="form-message form-message--success">{success}</p>
           )}
-          {resetLink && (
-            <p className="form-message form-message--success">
-              {success.includes("could not send")
-                ? "Use this reset link to set a new password: "
-                : "Email is not configured yet, so use this reset link: "}
-              <Link to={new URL(resetLink).pathname}>Reset password</Link>
-            </p>
-          )}
-
           <button type="submit" className="login-button" disabled={loading}>
             {loading ? "Sending..." : "Send reset link"}
           </button>

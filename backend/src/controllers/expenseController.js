@@ -3,9 +3,13 @@ const expenseService = require("../services/expenseService");
 // ==========================
 // GET ALL EXPENSES
 // ==========================
+
 const getExpenses = async (req, res) => {
   try {
-    const expenses = await expenseService.getAllExpenses();
+    const expenses =
+      await expenseService.getAllExpenses(
+        req.user.id
+      );
 
     res.status(200).json({
       success: true,
@@ -23,14 +27,22 @@ const getExpenses = async (req, res) => {
 // ==========================
 // GET SINGLE EXPENSE
 // ==========================
-const getExpenseById = async (req, res) => {
+
+const getExpenseById = async (
+  req,
+  res
+) => {
   try {
-    const expense = await expenseService.getExpenseById(req.params.id);
+    const expense =
+      await expenseService.getExpenseById(
+        req.params.id,
+        req.user.id
+      );
 
     if (!expense) {
       return res.status(404).json({
         success: false,
-        message: "Expense not found",
+        message: "Expense not found.",
       });
     }
 
@@ -49,13 +61,21 @@ const getExpenseById = async (req, res) => {
 // ==========================
 // CREATE EXPENSE
 // ==========================
-const createExpense = async (req, res) => {
+
+const createExpense = async (
+  req,
+  res
+) => {
   try {
-    const newExpense = await expenseService.addExpense(req.body);
+    const newExpense =
+      await expenseService.addExpense(
+        req.body,
+        req.user.id
+      );
 
     res.status(201).json({
       success: true,
-      message: "Expense added successfully",
+      message: "Expense added successfully.",
       data: newExpense,
     });
   } catch (error) {
@@ -69,23 +89,31 @@ const createExpense = async (req, res) => {
 // ==========================
 // UPDATE EXPENSE
 // ==========================
-const updateExpense = async (req, res) => {
+
+const updateExpense = async (
+  req,
+  res
+) => {
   try {
-    const updatedExpense = await expenseService.updateExpense(
-      req.params.id,
-      req.body
-    );
+    const updatedExpense =
+      await expenseService.updateExpense(
+        req.params.id,
+        req.body,
+        req.user.id
+      );
 
     if (!updatedExpense) {
       return res.status(404).json({
         success: false,
-        message: "Expense not found",
+        message:
+          "Expense not found or access denied.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Expense updated successfully",
+      message:
+        "Expense updated successfully.",
       data: updatedExpense,
     });
   } catch (error) {
@@ -99,20 +127,30 @@ const updateExpense = async (req, res) => {
 // ==========================
 // DELETE EXPENSE
 // ==========================
-const deleteExpense = async (req, res) => {
+
+const deleteExpense = async (
+  req,
+  res
+) => {
   try {
-    const deletedExpense = await expenseService.deleteExpense(req.params.id);
+    const deletedExpense =
+      await expenseService.deleteExpense(
+        req.params.id,
+        req.user.id
+      );
 
     if (!deletedExpense) {
       return res.status(404).json({
         success: false,
-        message: "Expense not found",
+        message:
+          "Expense not found or access denied.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Expense deleted successfully",
+      message:
+        "Expense deleted successfully.",
       data: deletedExpense,
     });
   } catch (error) {

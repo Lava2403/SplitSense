@@ -11,7 +11,7 @@ import GroupsPage from "./pages/GroupsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { isAuthenticated } from "./utils/auth";
 import SettlementPage from "./pages/SettlementPage";
-
+import BudgetPlanner from "./pages/BudgetPlanner";
 
 function PublicOnlyRoute({ children }) {
   if (isAuthenticated()) {
@@ -54,7 +54,10 @@ function App() {
           }
         />
 
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route
+          path="/reset-password/:token"
+          element={<ResetPassword />}
+        />
 
         <Route
           path="/dashboard"
@@ -102,6 +105,15 @@ function App() {
         />
 
         <Route
+          path="/budget-planner"
+          element={
+            <ProtectedRoute>
+              <BudgetPlanner />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/test-api"
           element={
             <ProtectedRoute>
@@ -109,6 +121,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Redirect any unknown route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
