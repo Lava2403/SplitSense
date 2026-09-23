@@ -94,12 +94,7 @@ function ExpenseFormModal({
     existingParticipants
   );
 
-  /*
-    ================================
-    LOAD EXISTING SPLIT INFORMATION
-    ================================
-  */
-
+  
   if (expense?.splits?.length) {
     const existingValues = {};
 
@@ -110,21 +105,8 @@ function ExpenseFormModal({
 
     setSplitValues(existingValues);
 
-    /*
-      Determine whether the existing
-      split was equal or custom.
+    
 
-      If every participant has the
-      same amount -> Equal split.
-
-      Otherwise -> Exact amounts.
-
-      We cannot reliably reconstruct
-      "Percentage" from stored amounts
-      because 70%/30% and exact
-      ₹700/₹300 result in the same
-      database values.
-    */
 
     const amounts = expense.splits.map(
       (split) => Number(split.amount)
@@ -142,9 +124,8 @@ function ExpenseFormModal({
         : "exact"
     );
   } else {
-    /*
-      New expense
-    */
+    
+
     setSplitValues({});
     setSplitType("equal");
   }
@@ -204,11 +185,7 @@ function ExpenseFormModal({
       );
     }
 
-    /*
-      ==========================
-      EQUAL SPLIT
-      ==========================
-    */
+    
 
     if (splitType === "equal") {
       const count =
@@ -236,12 +213,7 @@ function ExpenseFormModal({
       return splits;
     }
 
-    /*
-      ==========================
-      EXACT AMOUNT SPLIT
-      ==========================
-    */
-
+    
     if (splitType === "exact") {
       const splits = selectedParticipants.map(
         (memberId) => {
@@ -292,12 +264,6 @@ function ExpenseFormModal({
 
       return splits;
     }
-
-    /*
-      ==========================
-      PERCENTAGE SPLIT
-      ==========================
-    */
 
     if (splitType === "percentage") {
       const percentages =
@@ -452,7 +418,6 @@ function ExpenseFormModal({
           className="space-y-4"
         >
 
-          {/* TITLE */}
           <div>
             <label className="font-medium">
               Title
@@ -470,7 +435,6 @@ function ExpenseFormModal({
             />
           </div>
 
-          {/* AMOUNT */}
           <div>
             <label className="font-medium">
               Amount
@@ -490,7 +454,6 @@ function ExpenseFormModal({
             />
           </div>
 
-          {/* CATEGORY */}
           <div>
             <label className="font-medium">
               Category
@@ -515,7 +478,6 @@ function ExpenseFormModal({
             </select>
           </div>
 
-          {/* DATE */}
           <div>
             <label className="font-medium">
               Date
@@ -532,7 +494,6 @@ function ExpenseFormModal({
             />
           </div>
 
-          {/* PAID BY */}
           <div>
             <label className="font-medium">
               Paid by
@@ -564,7 +525,6 @@ function ExpenseFormModal({
             </select>
           </div>
 
-          {/* PARTICIPANTS */}
           <div>
             <label className="font-medium">
               Split between
@@ -596,7 +556,6 @@ function ExpenseFormModal({
             </div>
           </div>
 
-          {/* SPLIT TYPE */}
           <div>
             <label className="font-medium">
               Split type
@@ -626,7 +585,6 @@ function ExpenseFormModal({
             </select>
           </div>
 
-          {/* SPLIT VALUES */}
           {selectedParticipants.length > 0 &&
             splitType !== "equal" && (
               <div className="border rounded-lg p-4 space-y-3">
@@ -692,7 +650,6 @@ function ExpenseFormModal({
                   }
                 )}
 
-                {/* LIVE TOTAL */}
                 <div className="pt-3 border-t text-sm">
                   {splitType === "exact" ? (
                     <p>
@@ -741,7 +698,6 @@ function ExpenseFormModal({
               </div>
             )}
 
-          {/* EQUAL SPLIT PREVIEW */}
           {splitType === "equal" &&
             selectedParticipants.length > 0 &&
             amount && (
@@ -801,14 +757,12 @@ function ExpenseFormModal({
               </div>
             )}
 
-          {/* ERROR */}
           {error && (
             <p className="text-red-600 text-sm">
               {error}
             </p>
           )}
 
-          {/* BUTTONS */}
           <div className="flex justify-end gap-3 pt-2">
 
             <button

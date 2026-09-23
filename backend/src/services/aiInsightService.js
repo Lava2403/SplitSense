@@ -54,7 +54,6 @@ const createFallbackInsights = (analytics) => {
   const actionableTips = [];
   const areasForImprovement = [];
 
-  // Overall spending observation
   if (
     previousMonthSpent > 0 &&
     changePercent !== null &&
@@ -79,7 +78,6 @@ const createFallbackInsights = (analytics) => {
     }
   }
 
-  // Top category
   if (topCategory?.category) {
     const percentage =
       Number(
@@ -93,7 +91,6 @@ const createFallbackInsights = (analytics) => {
     });
   }
 
-  // Other category
   const otherCategory =
     categories.find(
       (category) =>
@@ -120,7 +117,6 @@ const createFallbackInsights = (analytics) => {
     });
   }
 
-  // General useful tip
   if (totalSpent > 0) {
     actionableTips.push(
       "Review your largest spending categories regularly to understand where most of your monthly expense share is going."
@@ -280,8 +276,7 @@ Return JSON matching the requested schema.
 
   let response = null;
 
-  // Try Gemini twice.
-  // This handles temporary 503/429 availability errors.
+  
   for (
     let attempt = 1;
     attempt <= 2;
@@ -393,14 +388,11 @@ Return JSON matching the requested schema.
         break;
       }
 
-      // Wait 1.5 seconds before retrying.
       await sleep(1500);
     }
   }
 
-  // Gemini was unavailable.
-  // Return analytics-based insights instead of
-  // breaking the Dashboard with a 500 error.
+  
   if (!response) {
     console.warn(
       "Gemini is temporarily unavailable. Using analytics fallback."

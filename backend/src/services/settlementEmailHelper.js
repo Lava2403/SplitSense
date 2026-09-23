@@ -1,34 +1,10 @@
 const pool = require("../../db");
 
-
-// ======================================================
-// CALCULATE USER OUTSTANDING PAYMENTS
-// ======================================================
-//
-// Returns who the current user owes and how much.
-//
-// Example:
-//
-// [
-//   {
-//     recipientId: 12,
-//     recipientName: "Nishant",
-//     recipientEmail: "...",
-//     groupName: "Goa Trip",
-//     amount: 850
-//   }
-// ]
-//
-// This uses the actual expense_splits amounts.
-// ======================================================
-
 const calculateUserOutstandingPayments = async (
   userId
 ) => {
 
-  // ----------------------------------------------------
-  // Get all expenses and their actual split amounts.
-  // ----------------------------------------------------
+ 
 
   const expenseResult =
     await pool.query(
@@ -68,16 +44,7 @@ const calculateUserOutstandingPayments = async (
     );
 
 
-  // ----------------------------------------------------
-  // Build net balances.
-  //
-  // Positive value for another user means:
-  // current user owes that person.
-  //
-  // Negative value means:
-  // that person owes current user.
-  // ----------------------------------------------------
-
+  
   const balances = new Map();
 
 
@@ -96,32 +63,16 @@ const calculateUserOutstandingPayments = async (
       Number(expense.total_amount || 0);
 
 
-    // User paid the expense.
-    //
-    // Everyone else's shares are owed to user.
+    
     if (paidBy === Number(userId)) {
 
       const othersOwe =
         totalAmount - userShare;
 
-      // We'll handle the exact person-to-person
-      // relationship below.
       continue;
     }
   }
 
-
-  // ----------------------------------------------------
-  // Calculate person-to-person balances directly.
-  //
-  // For every expense:
-  //
-  // if Nishant paid ₹1000 and Lavanya's split is ₹300,
-  // Lavanya owes Nishant ₹300.
-  //
-  // If Lavanya paid ₹1000 and Nishant's split is ₹300,
-  // Nishant owes Lavanya ₹300.
-  // ----------------------------------------------------
 
   const detailedResult =
     await pool.query(
@@ -166,10 +117,6 @@ const calculateUserOutstandingPayments = async (
     );
 
 
-  // ----------------------------------------------------
-  // Person-pair balances
-  // ----------------------------------------------------
-
   const pairBalances =
     new Map();
 
@@ -189,8 +136,7 @@ const calculateUserOutstandingPayments = async (
       Number(row.participant_share || 0);
 
 
-    // We only care about transactions involving
-    // the current user.
+
 
     if (
       payerId !== Number(userId) &&
@@ -199,10 +145,6 @@ const calculateUserOutstandingPayments = async (
       continue;
     }
 
-
-    // --------------------------------------------------
-    // User owes payer
-    // --------------------------------------------------
 
     if (
       participantId === Number(userId)
@@ -231,23 +173,8 @@ const calculateUserOutstandingPayments = async (
 
       continue;
     }
-
-
-    // --------------------------------------------------
-    // User paid, another participant owes user
-    //
-    // This does NOT belong in "you owe" email.
-    // --------------------------------------------------
-
   }
 
-
-  // ----------------------------------------------------
-  // Apply completed settlements.
-  //
-  // A settlement from the current user to someone
-  // reduces the amount still owed.
-  // ----------------------------------------------------
 
   const settlementResult =
     await pool.query(
@@ -285,8 +212,7 @@ const calculateUserOutstandingPayments = async (
       Number(settlement.amount || 0);
 
 
-    // User paid someone.
-    // Reduce what user owes them.
+    
     if (
       payerId === Number(userId)
     ) {
@@ -303,19 +229,10 @@ const calculateUserOutstandingPayments = async (
 
       continue;
     }
-
-
-    // Someone paid the user.
-    // This doesn't reduce what user owes them.
-    // It is relevant only if there was a reverse
-    // balance, which isn't included in this email.
   }
 
 
-  // ----------------------------------------------------
-  // Return only positive outstanding amounts.
-  // ----------------------------------------------------
-
+  
   return Array.from(
     pairBalances.values()
   )

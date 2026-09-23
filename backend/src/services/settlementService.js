@@ -1,9 +1,5 @@
 const pool = require("../../db");
 
-// =====================================
-// CHECK IF USER HAS ACCESS TO GROUP
-// =====================================
-
 const userHasGroupAccess = async (groupId, userId) => {
   const result = await pool.query(
     `
@@ -19,9 +15,6 @@ const userHasGroupAccess = async (groupId, userId) => {
   return result.rows.length > 0;
 };
 
-// =====================================
-// GET ALL GROUPS FOR USER
-// =====================================
 
 const getUserGroups = async (userId) => {
   const result = await pool.query(
@@ -44,15 +37,8 @@ const getUserGroups = async (userId) => {
   return result.rows;
 };
 
-// =====================================
-// CALCULATE BALANCES FOR A GROUP
-//
-// positive = person should receive money
-// negative = person owes money
-// =====================================
 
 const calculateGroupBalances = async (groupId) => {
-  // Get all group members
   const membersResult = await pool.query(
     `
       SELECT
@@ -78,9 +64,6 @@ const calculateGroupBalances = async (groupId) => {
     });
   });
 
-  // =====================================
-  // GET ALL EXPENSES + ACTUAL SPLITS
-  // =====================================
 
   const expensesResult = await pool.query(
     `
@@ -120,9 +103,6 @@ const calculateGroupBalances = async (groupId) => {
     [groupId]
   );
 
-  // =====================================
-  // PROCESS EXPENSES
-  // =====================================
 
   for (const expense of expensesResult.rows) {
     const amount = Number(expense.amount);
@@ -131,22 +111,16 @@ const calculateGroupBalances = async (groupId) => {
       ? expense.splits
       : [];
 
-    // If no splits exist, skip safely
     if (splits.length === 0) {
       continue;
     }
 
-    // ===================================
-    // PERSON WHO PAID GETS CREDIT
-    // ===================================
 
     if (balances.has(expense.paid_by)) {
       balances.get(expense.paid_by).balance += amount;
     }
 
-    // ===================================
-    // EACH PERSON GETS THEIR ACTUAL SHARE
-    // ===================================
+    
 
     for (const split of splits) {
       const participantId = Number(
@@ -161,13 +135,6 @@ const calculateGroupBalances = async (groupId) => {
     }
   }
 
-  // =====================================
-  // SUBTRACT COMPLETED SETTLEMENTS
-  //
-  // payer paid receiver
-  // payer's debt decreases
-  // receiver's credit decreases
-  // =====================================
 
   const settlementsResult = await pool.query(
     `
@@ -194,28 +161,13 @@ const calculateGroupBalances = async (groupId) => {
     }
   }
 
-  // =====================================
-  // REMOVE TINY FLOATING POINT DIFFERENCES
-  // =====================================
-
+  
   return [...balances.values()].map((person) => ({
     ...person,
     balance: Number(person.balance.toFixed(2)),
   }));
 };
 
-// =====================================
-// SIMPLIFY SETTLEMENTS
-//
-// Example:
-//
-// A owes 100
-// B owes 50
-// C should receive 150
-//
-// → A pays C 100
-// → B pays C 50
-// =====================================
 
 const simplifyBalances = (balances) => {
   const creditors = balances
@@ -274,11 +226,6 @@ const simplifyBalances = (balances) => {
   return settlements;
 };
 
-// =====================================
-// GET ALL PENDING SETTLEMENTS
-// FOR LOGGED-IN USER
-// =====================================
-
 const getPendingSettlements = async (userId) => {
   const groups = await getUserGroups(userId);
 
@@ -292,7 +239,7 @@ const getPendingSettlements = async (userId) => {
     const settlements = simplifyBalances(balances);
 
     for (const settlement of settlements) {
-      // Only return settlements involving current user
+      
       if (
         settlement.payerId === userId ||
         settlement.receiverId === userId
@@ -321,9 +268,7 @@ const getPendingSettlements = async (userId) => {
   return allSettlements;
 };
 
-// =====================================
-// GET SETTLEMENT SUMMARY
-// =====================================
+
 
 const getSettlementSummary = async (userId) => {
   const settlements =
@@ -355,9 +300,6 @@ const getSettlementSummary = async (userId) => {
   };
 };
 
-// =====================================
-// RECORD A SETTLEMENT
-// =====================================
 
 const createSettlement = async (
   settlementData,
@@ -432,7 +374,6 @@ const createSettlement = async (
     throw error;
   }
 
-  // Check that receiver belongs to the group
   const receiverResult = await pool.query(
     `
       SELECT 1
@@ -456,10 +397,6 @@ const createSettlement = async (
 
     throw error;
   }
-
-  // =====================================
-  // CHECK REAL PENDING SETTLEMENT
-  // =====================================
 
   const balances =
     await calculateGroupBalances(
@@ -537,9 +474,6 @@ const createSettlement = async (
   return result.rows[0];
 };
 
-// =====================================
-// GET SETTLEMENT HISTORY
-// =====================================
 
 const getSettlementHistory = async (
   userId

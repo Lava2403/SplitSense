@@ -35,9 +35,6 @@ app.use(cors());
 
 app.use(express.json());
 
-// ==========================
-// BASIC ROUTES
-// ==========================
 
 app.get("/", (req, res) => {
   res.send(
@@ -86,9 +83,6 @@ app.get(
   }
 );
 
-// ==========================
-// APPLICATION ROUTES
-// ==========================
 
 app.use(
   "/api/auth",
@@ -120,9 +114,6 @@ app.use(
   aiInsightRoutes
 );
 
-// ==========================
-// START SERVER
-// ==========================
 
 const PORT =
   process.env.PORT || 8000;

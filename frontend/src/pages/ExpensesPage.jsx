@@ -21,9 +21,6 @@ function ExpensesPage() {
   const currentUserId = Number(storedUser?.id);
   const currentUserName = storedUser?.name || "User";
 
-  // =========================================================
-  // LOAD DATA
-  // =========================================================
 
   useEffect(() => {
     async function loadData() {
@@ -47,10 +44,6 @@ function ExpensesPage() {
 
     loadData();
   }, []);
-
-  // =========================================================
-  // HELPERS
-  // =========================================================
 
   const getExpenseSplits = (expense) => {
     if (!Array.isArray(expense.splits)) {
@@ -96,8 +89,6 @@ function ExpensesPage() {
     }
 
     // Fallback:
-    // participantIds and participants are returned from
-    // the backend in corresponding arrays.
     const participantIndex =
       expense.participantIds?.findIndex(
         (id) => Number(id) === numericId
@@ -114,23 +105,6 @@ function ExpensesPage() {
     return "Unknown";
   };
 
-  // =========================================================
-  // EXPENSE STATUS
-  // =========================================================
-  //
-  // IMPORTANT:
-  // We use expense.splits here.
-  //
-  // We DO NOT divide expense.amount by participants.length.
-  //
-  // Example:
-  // ₹1000
-  // Lavanya = ₹700
-  // Nishant = ₹300
-  //
-  // The page will use exactly those amounts.
-  // =========================================================
-
   const getExpenseStatus = (expense) => {
     const splits = getExpenseSplits(expense);
 
@@ -144,10 +118,8 @@ function ExpensesPage() {
 
     const paidById = Number(expense.paidById);
 
-    // -------------------------------------------------------
     // CASE 1:
-    // YOU PAID
-    // -------------------------------------------------------
+    // USER PAID
 
     if (
       paidById === currentUserId ||
@@ -200,10 +172,9 @@ function ExpensesPage() {
       };
     }
 
-    // -------------------------------------------------------
+    
     // CASE 2:
     // SOMEONE ELSE PAID
-    // -------------------------------------------------------
 
     const mySplit = splits.find(
       (split) =>
@@ -236,18 +207,16 @@ function ExpensesPage() {
     };
   };
 
-  // =========================================================
+  
   // NORMALIZE EXPENSES
-  // =========================================================
 
   const normalizedExpenses = expenses.map((expense) => ({
     ...expense,
     group: expense.groupName || "Group",
   }));
 
-  // =========================================================
+  
   // FILTER
-  // =========================================================
 
   const filteredExpenses = useMemo(() => {
     return normalizedExpenses.filter((expense) => {
@@ -292,9 +261,8 @@ function ExpensesPage() {
     groups,
   ]);
 
-  // =========================================================
+  
   // LOADING
-  // =========================================================
 
   if (loading) {
     return (
@@ -314,10 +282,7 @@ function ExpensesPage() {
     );
   }
 
-  // =========================================================
   // PAGE
-  // =========================================================
-
   return (
     <div
       className="flex min-h-screen"

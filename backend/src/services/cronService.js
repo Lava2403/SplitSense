@@ -8,9 +8,7 @@ const {
 } = require("./emailService");
 
 
-// ======================================================
-// GET USERS WITH EMAILS
-// ======================================================
+
 
 const getUsersWithEmails = async () => {
   const result = await pool.query(`
@@ -28,9 +26,7 @@ const getUsersWithEmails = async () => {
 };
 
 
-// ======================================================
-// DAILY OUTSTANDING PAYMENT EMAILS
-// ======================================================
+
 
 const runDailyOutstandingPaymentEmails = async () => {
   console.log(
@@ -67,9 +63,7 @@ const runDailyOutstandingPaymentEmails = async () => {
 };
 
 
-// ======================================================
-// MONTHLY AI SPENDING EMAILS
-// ======================================================
+
 
 const runMonthlySpendingEmails = async () => {
   console.log(
@@ -79,12 +73,7 @@ const runMonthlySpendingEmails = async () => {
   try {
     const users = await getUsersWithEmails();
 
-    // Generate the report for the previous
-    // completed month.
-    //
-    // Example:
-    // September 1 → August report
-    // October 1   → September report
+    
 
     const now = new Date();
 
@@ -133,15 +122,11 @@ const runMonthlySpendingEmails = async () => {
 };
 
 
-// ======================================================
-// START CRON JOBS
-// ======================================================
+
 
 const startCronJobs = () => {
 
-  // ----------------------------------------------------
-  // DAILY — 8:00 AM
-  // ----------------------------------------------------
+  
 
   cron.schedule(
     "0 8 * * *",
@@ -156,10 +141,7 @@ const startCronJobs = () => {
   );
 
 
-  // ----------------------------------------------------
-  // MONTHLY — 1st day of every month at 9:00 AM
-  // ----------------------------------------------------
-
+  
   cron.schedule(
     "0 9 1 * *",
     () => {

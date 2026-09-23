@@ -8,10 +8,8 @@ const {
 
 const router = express.Router();
 
-// All AI insight routes require authentication
 router.use(authenticate);
 
-// GET /api/ai-insights/monthly
 router.get("/monthly", getMonthlyInsights);
 
 module.exports = router;

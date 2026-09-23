@@ -144,7 +144,7 @@ function Dashboard() {
       <main className="flex-1 p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
 
-          {/* ================= HEADER ================= */}
+          
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-7">
             <div>
               <h1 className="text-3xl font-bold text-emerald-400">
@@ -164,7 +164,6 @@ function Dashboard() {
             </button>
           </div>
 
-          {/* ================= SUMMARY CARDS ================= */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <SummaryCard
               title="Net Balance"
@@ -189,10 +188,9 @@ function Dashboard() {
             />
           </div>
 
-          {/* ================= BALANCES + GROUPS ================= */}
+          
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 mt-6">
 
-            {/* Your Balances */}
             <section className="bg-slate-50 rounded-xl border border-slate-200 shadow-sm p-5">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -257,7 +255,6 @@ function Dashboard() {
               )}
             </section>
 
-            {/* Recent Groups */}
             <section className="bg-slate-50 rounded-xl border border-slate-200 shadow-sm p-5">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -319,7 +316,6 @@ function Dashboard() {
             </section>
           </div>
 
-          {/* ================= MONTHLY SPENDING ================= */}
           <section className="bg-slate-50 rounded-xl border border-slate-200 shadow-sm p-5 mt-5">
             <div className="flex items-center gap-2 mb-1">
               <BarChart3
@@ -372,12 +368,10 @@ function Dashboard() {
             </div>
           </section>
 
-          {/* ================= AI SNAPSHOT ================= */}
           <div className="mt-5">
             <AIInsightSnapshot />
           </div>
 
-          {/* ================= RECENT EXPENSES ================= */}
           <section className="bg-slate-50 rounded-xl border border-slate-200 shadow-sm p-5 mt-5">
             <div className="flex items-center justify-between mb-4">
               <div>

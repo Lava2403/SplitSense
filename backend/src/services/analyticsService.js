@@ -67,9 +67,6 @@ const getMonthRange = (month) => {
   };
 };
 
-// ==========================
-// MONTHLY ANALYTICS
-// ==========================
 
 const getMonthlyAnalytics = async (
   userId,
@@ -83,9 +80,6 @@ const getMonthlyAnalytics = async (
     previousStart,
   } = getMonthRange(month);
 
-  // ------------------------------------------------
-  // CURRENT MONTH TOTAL
-  // ------------------------------------------------
 
   const currentTotalResult =
     await pool.query(
@@ -115,9 +109,6 @@ const getMonthlyAnalytics = async (
       ]
     );
 
-  // ------------------------------------------------
-  // PREVIOUS MONTH TOTAL
-  // ------------------------------------------------
 
   const previousTotalResult =
     await pool.query(
@@ -147,9 +138,6 @@ const getMonthlyAnalytics = async (
       ]
     );
 
-  // ------------------------------------------------
-  // CURRENT CATEGORY BREAKDOWN
-  // ------------------------------------------------
 
   const categoryResult =
     await pool.query(
@@ -193,10 +181,7 @@ const getMonthlyAnalytics = async (
       ]
     );
 
-  // ------------------------------------------------
-  // PREVIOUS CATEGORY BREAKDOWN
-  // ------------------------------------------------
-
+  
   const previousCategoryResult =
     await pool.query(
       `
@@ -233,9 +218,6 @@ const getMonthlyAnalytics = async (
       ]
     );
 
-  // ------------------------------------------------
-  // DAILY SPENDING
-  // ------------------------------------------------
 
   const dailyResult =
     await pool.query(
@@ -291,9 +273,6 @@ const getMonthlyAnalytics = async (
         ?.expense_count || 0
     );
 
-  // ------------------------------------------------
-  // PREVIOUS CATEGORY MAP
-  // ------------------------------------------------
 
   const previousCategoryMap =
     new Map();
@@ -306,10 +285,6 @@ const getMonthlyAnalytics = async (
       Number(row.amount)
     );
   }
-
-  // ------------------------------------------------
-  // CATEGORY ANALYSIS
-  // ------------------------------------------------
 
   const categories =
     categoryResult.rows.map((row) => {
@@ -362,9 +337,6 @@ const getMonthlyAnalytics = async (
       };
     });
 
-  // ------------------------------------------------
-  // MONTH-OVER-MONTH CHANGE
-  // ------------------------------------------------
 
   let changePercent = 0;
 
@@ -377,10 +349,7 @@ const getMonthlyAnalytics = async (
     changePercent = null;
   }
 
-  // ------------------------------------------------
-  // TOP CATEGORY
-  // ------------------------------------------------
-
+  
   const topCategory =
     categories.length > 0
       ? categories[0]
@@ -422,7 +391,6 @@ const getMonthlyAnalytics = async (
         ),
       })),
 
-    // Important context for the AI:
     spendingBasis:
       "User's share of expenses from expense_splits",
   };

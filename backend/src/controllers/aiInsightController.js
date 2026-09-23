@@ -2,9 +2,6 @@ const {
   generateMonthlyInsights,
 } = require("../services/aiInsightService");
 
-// ==========================
-// GET MONTHLY AI INSIGHTS
-// ==========================
 
 const getMonthlyInsights = async (req, res) => {
   try {

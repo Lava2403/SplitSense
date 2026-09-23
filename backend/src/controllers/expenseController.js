@@ -1,9 +1,5 @@
 const expenseService = require("../services/expenseService");
 
-// ==========================
-// GET ALL
-// ==========================
-
 const getExpenses = async (req, res) => {
   try {
     const expenses =
@@ -26,9 +22,6 @@ const getExpenses = async (req, res) => {
   }
 };
 
-// ==========================
-// GET SINGLE
-// ==========================
 
 const getExpenseById = async (
   req,
@@ -62,9 +55,6 @@ const getExpenseById = async (
   }
 };
 
-// ==========================
-// CREATE
-// ==========================
 
 const createExpense = async (
   req,
@@ -93,9 +83,6 @@ const createExpense = async (
   }
 };
 
-// ==========================
-// UPDATE
-// ==========================
 
 const updateExpense = async (
   req,
@@ -133,9 +120,6 @@ const updateExpense = async (
   }
 };
 
-// ==========================
-// DELETE
-// ==========================
 
 const deleteExpense = async (
   req,

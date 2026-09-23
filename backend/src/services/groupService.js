@@ -122,9 +122,7 @@ const expenseSelect = `
     ON participant.id = es.user_id
 `;
 
-// ==========================
-// ATTACH GROUP MEMBERS
-// ==========================
+
 const attachGroupMembers = async (group) => {
   const membersResult = await pool.query(
     `
@@ -150,9 +148,6 @@ const attachGroupMembers = async (group) => {
   return group;
 };
 
-// ==========================
-// CHECK GROUP ACCESS
-// ==========================
 const userHasGroupAccess = async (groupId, userId) => {
   const result = await pool.query(
     `
@@ -171,9 +166,7 @@ const userHasGroupAccess = async (groupId, userId) => {
   return result.rows.length > 0;
 };
 
-// ==========================
-// CHECK GROUP OWNER
-// ==========================
+
 const isGroupOwner = async (groupId, userId) => {
   const result = await pool.query(
     `
@@ -192,10 +185,7 @@ const isGroupOwner = async (groupId, userId) => {
   return result.rows.length > 0;
 };
 
-// ==========================
-// GET ALL GROUPS
-// ONLY GROUPS USER BELONGS TO
-// ==========================
+
 const getAllGroups = async (userId) => {
   const result = await pool.query(
     `
@@ -280,10 +270,6 @@ const getAllGroups = async (userId) => {
   return groups;
 };
 
-// ==========================
-// GET GROUP BY ID
-// ONLY IF USER IS MEMBER
-// ==========================
 const getGroupById = async (
   id,
   userId
@@ -357,9 +343,6 @@ const getGroupById = async (
   return group;
 };
 
-// ==========================
-// CREATE GROUP
-// ==========================
 const createGroup = async (groupData) => {
   const client = await pool.connect();
 
@@ -475,10 +458,7 @@ const createGroup = async (groupData) => {
   }
 };
 
-// ==========================
-// ADD MEMBER
-// ONLY GROUP MEMBER CAN ADD
-// ==========================
+
 const addMemberToGroup = async (
   groupId,
   email,
@@ -579,10 +559,7 @@ const addMemberToGroup = async (
   return user;
 };
 
-// ==========================
-// UPDATE GROUP
-// ONLY CREATOR CAN UPDATE
-// ==========================
+
 const updateGroup = async (
   id,
   updatedData,
@@ -623,10 +600,6 @@ const updateGroup = async (
   return result.rows[0] || null;
 };
 
-// ==========================
-// DELETE GROUP
-// ONLY CREATOR CAN DELETE
-// ==========================
 const deleteGroup = async (
   id,
   userId

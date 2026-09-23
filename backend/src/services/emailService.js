@@ -7,9 +7,6 @@ const {
 } = require("./aiInsightService");
 
 
-// ======================================================
-// EMAIL TRANSPORTER
-// ======================================================
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -20,9 +17,6 @@ const transporter = nodemailer.createTransport({
 });
 
 
-// ======================================================
-// HELPERS
-// ======================================================
 
 const formatCurrency = (amount) => {
   return `₹${Number(amount || 0).toLocaleString("en-IN", {
@@ -53,10 +47,6 @@ const formatMonthName = (month) => {
   });
 };
 
-
-// ======================================================
-// COMMON EMAIL WRAPPER
-// ======================================================
 
 const emailLayout = ({
   title,
@@ -325,9 +315,6 @@ const emailLayout = ({
 };
 
 
-// ======================================================
-// SEND EMAIL
-// ======================================================
 
 const sendEmail = async ({
   to,
@@ -350,10 +337,6 @@ const sendEmail = async ({
   });
 };
 
-
-// ======================================================
-// MONTHLY SPENDING EMAIL
-// ======================================================
 
 const sendMonthlySpendingEmail = async (
   user,
@@ -382,9 +365,7 @@ const sendMonthlySpendingEmail = async (
             : ""
         }${analytics.changePercent}%`;
 
-  // ----------------------------------------------------
-  // CATEGORY TABLE
-  // ----------------------------------------------------
+  
 
   const categoryRows =
     analytics.categories.length > 0
@@ -419,9 +400,7 @@ const sendMonthlySpendingEmail = async (
           </tr>
         `;
 
-  // ----------------------------------------------------
-  // IMPROVEMENT AREAS
-  // ----------------------------------------------------
+  
 
   const improvementHtml =
     insights.areasForImprovement
@@ -462,9 +441,7 @@ const sendMonthlySpendingEmail = async (
           </div>
         `;
 
-  // ----------------------------------------------------
-  // POSITIVE OBSERVATIONS
-  // ----------------------------------------------------
+  
 
   const positiveHtml =
     insights.positiveObservations
@@ -484,10 +461,7 @@ const sendMonthlySpendingEmail = async (
           </div>
         `;
 
-  // ----------------------------------------------------
-  // ACTIONABLE TIPS
-  // ----------------------------------------------------
-
+  
   const tipsHtml =
     insights.actionableTips
       ?.length > 0
@@ -506,9 +480,7 @@ const sendMonthlySpendingEmail = async (
           </div>
         `;
 
-  // ----------------------------------------------------
-  // EMAIL CONTENT
-  // ----------------------------------------------------
+  
 
   const content = `
 
@@ -670,23 +642,13 @@ const sendMonthlySpendingEmail = async (
 };
 
 
-// ======================================================
-// DAILY OUTSTANDING PAYMENTS EMAIL
-// ======================================================
+
 
 const sendOutstandingPaymentsEmail = async (
   user
 ) => {
 
-  // ----------------------------------------------------
-  // Find amounts the user currently owes others.
-  //
-  // Positive debt:
-  // current user's share > amount they paid
-  //
-  // Negative debt:
-  // others owe the current user.
-  // ----------------------------------------------------
+  
 
   const result = await pool.query(
     `
@@ -771,16 +733,7 @@ const sendOutstandingPaymentsEmail = async (
     [user.id]
   );
 
-  // ----------------------------------------------------
-  // IMPORTANT:
-  //
-  // The query above gives group-level outstanding
-  // balances. However, the person who ultimately needs
-  // to receive the money may not be the group creator.
-  //
-  // Therefore, use the settlement service's simplified
-  // balances instead for the actual email.
-  // ----------------------------------------------------
+ 
 
   const {
     calculateUserOutstandingPayments,

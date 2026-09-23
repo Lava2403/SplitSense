@@ -12,9 +12,6 @@ const VALID_CATEGORIES = [
   "Other",
 ];
 
-// ==========================
-// MONEY HELPERS
-// ==========================
 
 const toCents = (value) => {
   return Math.round(Number(value) * 100);
@@ -24,9 +21,6 @@ const fromCents = (value) => {
   return value / 100;
 };
 
-// ==========================
-// RESOLVE USER ID
-// ==========================
 
 const resolveUserId = async (client, value) => {
   if (
@@ -59,10 +53,6 @@ const resolveUserId = async (client, value) => {
   return result.rows[0]?.id || null;
 };
 
-// ==========================
-// RESOLVE PARTICIPANTS
-// ==========================
-
 const resolveParticipantIds = async (
   client,
   participants = []
@@ -90,9 +80,6 @@ const resolveParticipantIds = async (
   return [...new Set(ids)];
 };
 
-// ==========================
-// VALIDATE CATEGORY
-// ==========================
 
 const validateCategory = (category) => {
   if (!category) {
@@ -113,9 +100,6 @@ const validateCategory = (category) => {
   return category;
 };
 
-// ==========================
-// BUILD + VALIDATE SPLITS
-// ==========================
 
 const buildValidatedSplits = async (
   client,
@@ -141,11 +125,7 @@ const buildValidatedSplits = async (
   const totalCents =
     toCents(totalAmount);
 
-  /*
-    Backward compatibility:
-    If no split information is provided,
-    divide equally.
-  */
+  
   if (splits === undefined) {
     const baseCents = Math.floor(
       totalCents / participantIds.length
@@ -295,9 +275,6 @@ const buildValidatedSplits = async (
   );
 };
 
-// ==========================
-// GET ALL EXPENSES
-// ==========================
 
 const getAllExpenses = async (
   userId
@@ -385,10 +362,6 @@ const getAllExpenses = async (
 
   return result.rows;
 };
-
-// ==========================
-// GET ONE EXPENSE
-// ==========================
 
 const getExpenseById = async (
   id,
@@ -480,9 +453,6 @@ const getExpenseById = async (
   return result.rows[0];
 };
 
-// ==========================
-// CREATE EXPENSE
-// ==========================
 
 const addExpense = async (
   expenseData,
@@ -692,10 +662,6 @@ const addExpense = async (
   }
 };
 
-// ==========================
-// UPDATE EXPENSE
-// ==========================
-
 const updateExpense = async (
   id,
   updatedData,
@@ -819,18 +785,6 @@ const updateExpense = async (
       error.statusCode = 400;
       throw error;
     }
-
-    /*
-      Determine participants.
-
-      If frontend sends participants,
-      use those.
-
-      Otherwise, if splits are supplied,
-      derive participants from splits.
-
-      Otherwise preserve existing participants.
-    */
 
     let participantInputs;
 
@@ -961,9 +915,7 @@ const updateExpense = async (
   }
 };
 
-// ==========================
-// DELETE EXPENSE
-// ==========================
+
 
 const deleteExpense = async (
   id,

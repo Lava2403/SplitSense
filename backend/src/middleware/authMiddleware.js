@@ -4,7 +4,6 @@ const {
   JWT_SECRET,
 } = require("../services/authService");
 
-// REQUIRED AUTH
 
 const authenticate = (req, res, next) => {
   const authHeader =
@@ -38,7 +37,6 @@ const authenticate = (req, res, next) => {
   }
 };
 
-// OPTIONAL AUTH
 
 const optionalAuth = (
   req,
