@@ -1,19 +1,17 @@
-import { useEffect, useState } from "react";
-import { FcGoogle } from "react-icons/fc";
+import { useEffect, useRef, useState } from "react";
 import { FaGithub } from "react-icons/fa";
 import { OAUTH_PROVIDERS } from "../config/oauth";
-import { getGoogleConfig, loginWithGoogle } from "../api/authApi";
+import { loginWithGoogle } from "../api/authApi";
 import "./OAuthSection.css";
 
 const PROVIDER_ICONS = {
-  google: FcGoogle,
   github: FaGithub,
 };
 
 let googleScriptPromise = null;
 
 const loadGoogleScript = () => {
-  if (window.google?.accounts?.oauth2) {
+  if (window.google?.accounts?.id) {
     return Promise.resolve();
   }
 
@@ -35,11 +33,16 @@ const loadGoogleScript = () => {
     }
 
     const script = document.createElement("script");
+
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
     script.defer = true;
+
     script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Unable to load Google sign-in."));
+
+    script.onerror = () =>
+      reject(new Error("Unable to load Google sign-in."));
+
     document.head.appendChild(script);
   });
 
@@ -53,87 +56,98 @@ function OAuthSection({
 }) {
   const [notice, setNotice] = useState("");
   const [loadingProvider, setLoadingProvider] = useState("");
-  const [googleClientId, setGoogleClientId] = useState("");
+
+  const googleButtonRef = useRef(null);
+
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
   useEffect(() => {
     let active = true;
 
-    getGoogleConfig()
-      .then((response) => {
+    const setupGoogle = async () => {
+      if (!googleClientId) {
+        setNotice(
+          "Google sign-in is not configured. Add VITE_GOOGLE_CLIENT_ID to the frontend .env file."
+        );
+        return;
+      }
+
+      try {
+        await loadGoogleScript();
+
+        if (!active || !googleButtonRef.current) return;
+
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+
+          callback: async (response) => {
+            setLoadingProvider("google");
+            setNotice("");
+
+            try {
+              if (!response?.credential) {
+                throw new Error("Google did not return a credential.");
+              }
+
+              const result = await loginWithGoogle({
+                credential: response.credential,
+              });
+
+              onSuccess?.(result.data);
+            } catch (error) {
+              setNotice(
+                error.response?.data?.message ||
+                  "Google sign-in failed. Please try again."
+              );
+            } finally {
+              setLoadingProvider("");
+            }
+          },
+        });
+
+        window.google.accounts.id.renderButton(
+          googleButtonRef.current,
+          {
+            type: "standard",
+            theme: "outline",
+            size: "large",
+            text: "continue_with",
+            shape: "rectangular",
+            width: 320,
+          }
+        );
+      } catch (error) {
         if (active) {
-          setGoogleClientId(response.data?.clientId || "");
+          setNotice(
+            "Unable to load Google sign-in. Please refresh and try again."
+          );
         }
-      })
-      .catch(() => {
-        if (active) setGoogleClientId("");
-      });
+      }
+    };
+
+    setupGoogle();
 
     return () => {
       active = false;
     };
-  }, []);
+  }, [googleClientId, onSuccess]);
 
   const showNotice = (message) => {
     setNotice(message);
     setTimeout(() => setNotice(""), 4000);
   };
 
-  const handleGoogleSignIn = async () => {
-    if (!googleClientId) {
-      showNotice(
-        "Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID in the backend .env file."
-      );
-      return;
-    }
-
-    setLoadingProvider("google");
-
-    try {
-      await loadGoogleScript();
-
-      await new Promise((resolve, reject) => {
-        const client = window.google.accounts.oauth2.initTokenClient({
-          client_id: googleClientId,
-          scope: "openid email profile",
-          callback: async (tokenResponse) => {
-            try {
-              if (tokenResponse.error) {
-                throw new Error(tokenResponse.error);
-              }
-
-              const response = await loginWithGoogle({
-                accessToken: tokenResponse.access_token,
-              });
-              onSuccess?.(response.data);
-              resolve();
-            } catch (error) {
-              reject(error);
-            }
-          },
-        });
-
-        client.requestAccessToken();
-      });
-    } catch (error) {
-      showNotice(
-        error.response?.data?.message ||
-          "Google sign-in was cancelled or failed."
-      );
-    } finally {
-      setLoadingProvider("");
-    }
-  };
-
   const handleOAuthClick = (providerId, providerName) => {
     if (providerId === "google") {
-      handleGoogleSignIn();
       return;
     }
 
     showNotice(`${providerName} sign-in coming soon.`);
   };
 
-  const enabledProviders = OAUTH_PROVIDERS.filter((provider) => provider.enabled);
+  const enabledProviders = OAUTH_PROVIDERS.filter(
+    (provider) => provider.enabled
+  );
 
   return (
     <div className="oauth-section">
@@ -141,6 +155,32 @@ function OAuthSection({
 
       <div className="oauth-buttons">
         {enabledProviders.map((provider) => {
+          if (provider.id === "google") {
+            return (
+              <div
+                key="google"
+                className="oauth-button oauth-button--google"
+              >
+                {loadingProvider === "google" && (
+                  <div className="oauth-loading">
+                    Connecting...
+                  </div>
+                )}
+
+                <div
+                  ref={googleButtonRef}
+                  style={{
+                    display:
+                      loadingProvider === "google"
+                        ? "none"
+                        : "flex",
+                    justifyContent: "center",
+                  }}
+                />
+              </div>
+            );
+          }
+
           const Icon = PROVIDER_ICONS[provider.id];
 
           return (
@@ -148,14 +188,23 @@ function OAuthSection({
               key={provider.id}
               type="button"
               className={`oauth-button oauth-button--${provider.id}`}
-              onClick={() => handleOAuthClick(provider.id, provider.name)}
+              onClick={() =>
+                handleOAuthClick(
+                  provider.id,
+                  provider.name
+                )
+              }
               disabled={Boolean(loadingProvider)}
             >
-              {Icon && <Icon className="oauth-button__icon" aria-hidden="true" />}
+              {Icon && (
+                <Icon
+                  className="oauth-button__icon"
+                  aria-hidden="true"
+                />
+              )}
+
               <span>
-                {loadingProvider === provider.id
-                  ? "Connecting..."
-                  : `Continue with ${provider.name}`}
+                Continue with {provider.name}
               </span>
             </button>
           );

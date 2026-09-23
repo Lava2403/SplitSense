@@ -6,9 +6,7 @@ const pool = require("../../db");
 
 const JWT_SECRET = process.env.JWT_SECRET || "splitsense-dev-secret";
 
-// ===============================
 // USER HELPERS
-// ===============================
 
 const sanitizeUser = (user) => ({
   id: user.id,
@@ -28,9 +26,7 @@ const createToken = (user) =>
     }
   );
 
-// ===============================
 // REGISTER USER
-// ===============================
 
 const registerUser = async ({ name, email, password }) => {
   const normalizedEmail = email.trim().toLowerCase();
@@ -71,9 +67,7 @@ const registerUser = async ({ name, email, password }) => {
   };
 };
 
-// ===============================
 // LOGIN USER
-// ===============================
 
 const loginUser = async ({ email, password }) => {
   const normalizedEmail = email.trim().toLowerCase();
@@ -118,10 +112,7 @@ const loginUser = async ({ email, password }) => {
   };
 };
 
-// ===============================
 // GET USER BY ID
-// ===============================
-
 const getUserById = async (id) => {
   const result = await pool.query(
     `
@@ -137,10 +128,7 @@ const getUserById = async (id) => {
     : null;
 };
 
-// ===============================
 // LIST USERS
-// ===============================
-
 const listUsers = async () => {
   const result = await pool.query(
     `
@@ -153,9 +141,7 @@ const listUsers = async () => {
   return result.rows.map(sanitizeUser);
 };
 
-// ===============================
 // GOOGLE LOGIN
-// ===============================
 
 const loginWithGoogle = async ({
   credential,
@@ -164,10 +150,7 @@ const loginWithGoogle = async ({
   let email = "";
   let name = "";
 
-  // -------------------------------
   // GOOGLE ID TOKEN
-  // -------------------------------
-
   if (credential) {
     const response = await fetch(
       `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(
@@ -205,10 +188,7 @@ const loginWithGoogle = async ({
       payload.email.split("@")[0];
   }
 
-  // -------------------------------
   // GOOGLE ACCESS TOKEN
-  // -------------------------------
-
   else if (accessToken) {
     const response = await fetch(
       "https://www.googleapis.com/oauth2/v3/userinfo",
@@ -237,10 +217,7 @@ const loginWithGoogle = async ({
       payload.email.split("@")[0];
   }
 
-  // -------------------------------
   // NO GOOGLE CREDENTIAL
-  // -------------------------------
-
   else {
     const error = new Error(
       "Google sign-in is missing credentials."
@@ -264,10 +241,7 @@ const loginWithGoogle = async ({
 
   let user = existing.rows[0];
 
-  // -------------------------------
   // CREATE USER IF NOT EXISTS
-  // -------------------------------
-
   if (!user) {
     const randomPassword =
       await bcrypt.hash(
@@ -300,9 +274,7 @@ const loginWithGoogle = async ({
   };
 };
 
-// ===============================
 // FRONTEND URL
-// ===============================
 
 const getFrontendUrl = () =>
   (
@@ -310,9 +282,7 @@ const getFrontendUrl = () =>
     "http://localhost:5173"
   ).replace(/\/$/, "");
 
-// ===============================
 // REQUEST PASSWORD RESET
-// ===============================
 
 const requestPasswordReset = async (email) => {
   const normalizedEmail =
@@ -378,9 +348,7 @@ const requestPasswordReset = async (email) => {
   };
 };
 
-// ===============================
 // SEND RESET EMAIL
-// ===============================
 
 const sendResetEmail = async ({
   to,
@@ -485,10 +453,7 @@ const sendResetEmail = async ({
   }
 };
 
-// ===============================
 // RESET PASSWORD
-// ===============================
-
 const resetPassword = async ({
   token,
   password,
@@ -559,10 +524,7 @@ const resetPassword = async ({
   );
 };
 
-// ===============================
 // EXPORTS
-// ===============================
-
 module.exports = {
   registerUser,
   loginUser,
