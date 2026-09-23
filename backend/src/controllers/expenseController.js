@@ -1,7 +1,7 @@
 const expenseService = require("../services/expenseService");
 
 // ==========================
-// GET ALL EXPENSES
+// GET ALL
 // ==========================
 
 const getExpenses = async (req, res) => {
@@ -17,7 +17,9 @@ const getExpenses = async (req, res) => {
       data: expenses,
     });
   } catch (error) {
-    res.status(error.statusCode || 500).json({
+    res.status(
+      error.statusCode || 500
+    ).json({
       success: false,
       message: error.message,
     });
@@ -25,7 +27,7 @@ const getExpenses = async (req, res) => {
 };
 
 // ==========================
-// GET SINGLE EXPENSE
+// GET SINGLE
 // ==========================
 
 const getExpenseById = async (
@@ -51,7 +53,9 @@ const getExpenseById = async (
       data: expense,
     });
   } catch (error) {
-    res.status(error.statusCode || 500).json({
+    res.status(
+      error.statusCode || 500
+    ).json({
       success: false,
       message: error.message,
     });
@@ -59,7 +63,7 @@ const getExpenseById = async (
 };
 
 // ==========================
-// CREATE EXPENSE
+// CREATE
 // ==========================
 
 const createExpense = async (
@@ -75,11 +79,14 @@ const createExpense = async (
 
     res.status(201).json({
       success: true,
-      message: "Expense added successfully.",
+      message:
+        "Expense added successfully.",
       data: newExpense,
     });
   } catch (error) {
-    res.status(error.statusCode || 500).json({
+    res.status(
+      error.statusCode || 500
+    ).json({
       success: false,
       message: error.message,
     });
@@ -87,7 +94,7 @@ const createExpense = async (
 };
 
 // ==========================
-// UPDATE EXPENSE
+// UPDATE
 // ==========================
 
 const updateExpense = async (
@@ -117,7 +124,9 @@ const updateExpense = async (
       data: updatedExpense,
     });
   } catch (error) {
-    res.status(error.statusCode || 500).json({
+    res.status(
+      error.statusCode || 500
+    ).json({
       success: false,
       message: error.message,
     });
@@ -125,7 +134,7 @@ const updateExpense = async (
 };
 
 // ==========================
-// DELETE EXPENSE
+// DELETE
 // ==========================
 
 const deleteExpense = async (
@@ -154,7 +163,9 @@ const deleteExpense = async (
       data: deletedExpense,
     });
   } catch (error) {
-    res.status(error.statusCode || 500).json({
+    res.status(
+      error.statusCode || 500
+    ).json({
       success: false,
       message: error.message,
     });

@@ -65,42 +65,61 @@ const resolveMemberIds = async (
 // ==========================
 // EXPENSE QUERY
 // ==========================
+// ==========================
+// EXPENSE QUERY
+// ==========================
 const expenseSelect = `
   SELECT
-      e.id,
-      e.group_id,
-      e.title,
-      e.amount,
-      e.expense_date AS date,
-      e.paid_by AS "paidById",
-      payer.name AS "paidBy",
+    e.id,
+    e.group_id,
+    e.title,
+    e.amount,
+    e.expense_date AS date,
+    e.paid_by AS "paidById",
+    payer.name AS "paidBy",
 
-      COALESCE(
-          ARRAY_AGG(participant.name)
-          FILTER (
-            WHERE participant.name IS NOT NULL
-          ),
-          '{}'
-      ) AS participants,
+    COALESCE(
+      ARRAY_AGG(participant.name)
+      FILTER (
+        WHERE participant.name IS NOT NULL
+      ),
+      '{}'
+    ) AS participants,
 
-      COALESCE(
-          ARRAY_AGG(participant.id)
-          FILTER (
-            WHERE participant.id IS NOT NULL
-          ),
-          ARRAY[]::int[]
-      ) AS "participantIds"
+    COALESCE(
+      ARRAY_AGG(participant.id)
+      FILTER (
+        WHERE participant.id IS NOT NULL
+      ),
+      ARRAY[]::int[]
+    ) AS "participantIds",
+
+    COALESCE(
+      JSON_AGG(
+        JSON_BUILD_OBJECT(
+          'userId',
+          es.user_id,
+          'amount',
+          es.amount
+        )
+        ORDER BY es.user_id
+      )
+      FILTER (
+        WHERE es.user_id IS NOT NULL
+      ),
+      '[]'
+    ) AS splits
 
   FROM expenses e
 
   JOIN users payer
-      ON payer.id = e.paid_by
+    ON payer.id = e.paid_by
 
   LEFT JOIN expense_splits es
-      ON es.expense_id = e.id
+    ON es.expense_id = e.id
 
   LEFT JOIN users participant
-      ON participant.id = es.user_id
+    ON participant.id = es.user_id
 `;
 
 // ==========================

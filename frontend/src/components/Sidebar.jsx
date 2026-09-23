@@ -4,6 +4,7 @@ import {
   Receipt,
   HandCoins,
   Wallet,
+  Sparkles,
   LogOut,
 } from "lucide-react";
 
@@ -45,6 +46,11 @@ function Sidebar() {
       path: "/budget-planner",
       icon: Wallet,
     },
+    {
+      label: "Insights",
+      path: "/insights",
+      icon: Sparkles,
+    }
   ];
 
   const isActivePath = (path) => {
@@ -59,7 +65,7 @@ function Sidebar() {
   };
 
   return (
-    <aside className="w-64 min-h-screen bg-slate-900 text-white p-6 flex flex-col sticky top-0">
+    <aside className="w-64 min-h-screen bg-[#070D1A] text-white p-6 flex flex-col sticky top-0 border-r border-white/30">
       <h1
         className="text-3xl font-extrabold mb-10 tracking-wide text-emerald-500 cursor-pointer"
         style={{ fontFamily: "Space Grotesk" }}

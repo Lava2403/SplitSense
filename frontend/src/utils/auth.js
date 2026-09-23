@@ -24,4 +24,8 @@ export const clearAuth = () => {
   localStorage.removeItem(USER_KEY);
 };
 
-export const isAuthenticated = () => Boolean(getToken());
+export const isAuthenticated = () => {
+  const token = getToken();
+  console.log("AUTH CHECK:", token);
+  return Boolean(token);
+};

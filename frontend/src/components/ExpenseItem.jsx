@@ -1,6 +1,6 @@
 function ExpenseItem({ title, amount, subtitle }) {
   return (
-    <div className="flex justify-between py-3 border-b">
+    <div className="flex justify-between py-2 border-b">
       <div>
         <span>{title}</span>
         {subtitle && (

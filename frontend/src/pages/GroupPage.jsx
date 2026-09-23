@@ -20,10 +20,8 @@ import {
 
 import { getStoredUser } from "../utils/auth";
 
-import {
-  formatAmount,
-  getUserBalances,
-} from "../utils/balances";
+import { formatAmount } from "../utils/balances";
+import { getPendingSettlements } from "../api/settlementApi";
 
 function GroupPage() {
   const { id } = useParams();
@@ -41,15 +39,24 @@ function GroupPage() {
 
   const [editingExpense, setEditingExpense] =
     useState(null);
+  const [pendingSettlements, setPendingSettlements] = useState([]);
 
   
   const fetchGroup = async () => {
     try {
       setLoading(true);
 
-      const res = await getGroup(id);
+      const [groupRes, settlementRes] = await Promise.all([
+        getGroup(id),
+        getPendingSettlements(),
+      ]);
 
-      setGroup(res.data);
+      setGroup(groupRes.data);
+      setPendingSettlements(
+        (settlementRes.data || []).filter(
+          (item) => String(item.groupId) === String(id)
+        )
+      );
     } catch (err) {
       console.error(err);
       setGroup(null);
@@ -155,18 +162,34 @@ function GroupPage() {
       )
     : 0;
 
-  const {
-    youOwe,
-    youAreOwed,
-    balances,
-    netBalance,
-  } = getUserBalances(
-    expenses,
-    currentUser?.name
-  );
+  const youOwe = pendingSettlements
+    .filter((item) => item.type === "pay")
+    .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+  const youAreOwed = pendingSettlements
+    .filter((item) => item.type === "receive")
+    .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+  const netBalance = youAreOwed - youOwe;
+
+  const balances = {};
+
+  pendingSettlements.forEach((item) => {
+    if (item.type === "pay") {
+      balances[item.receiver] = -Number(item.amount || 0);
+    } else {
+      balances[item.payer] = Number(item.amount || 0);
+    }
+  });
 
   return (
-    <div className="flex bg-gray-100 min-h-screen">
+    <div
+  className="flex min-h-screen"
+  style={{
+    background:
+      "radial-gradient(circle at 82% 8%, rgba(16,185,129,0.18), transparent 35%), linear-gradient(120deg, #0F172A 0%, #172033 38%, #1E293B 68%, #0F2B46 100%)"
+  }}
+>
 
       <Sidebar />
 
@@ -174,9 +197,9 @@ function GroupPage() {
 
         
 
-        <div className="rounded-2xl p-8 shadow mb-6 text-white bg-gradient-to-r from-emerald-700 to-slate-800">
+        <div className="rounded-2xl px-7 py-6 shadow-sm mb-6 text-white bg-gradient-to-r from-emerald-700 to-slate-800">
 
-          <h1 className="text-4xl font-bold">
+          <h1 className="text-3xl font-bold">
             {group.name}
           </h1>
 
@@ -193,7 +216,7 @@ function GroupPage() {
 
         
 
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
           <div className="bg-white p-4 rounded-xl shadow">
             <p className="text-gray-500">
@@ -229,7 +252,7 @@ function GroupPage() {
 
         
 
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
           <div className="bg-white p-4 rounded-xl shadow">
             <p className="text-gray-500">
@@ -271,7 +294,7 @@ function GroupPage() {
 
         
 
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-wrap gap-3 mb-6">
 
           <button
             onClick={() => {

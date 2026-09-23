@@ -15,9 +15,7 @@ function ExpenseCard({
 
         <div className="flex items-start gap-4">
 
-          <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-xl">
-            💸
-          </div>
+          
 
           <div>
 
@@ -55,14 +53,14 @@ function ExpenseCard({
 
             <button
               onClick={onEdit}
-              className="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 text-sm"
+              className="px-3 py-1 rounded-lg bg-black text-white hover:bg-gray-600 text-sm"
             >
               Edit
             </button>
 
             <button
               onClick={onDelete}
-              className="px-3 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 text-sm"
+              className="px-3 py-1 rounded-lg bg-black text-white hover:bg-gray-600 text-sm"
             >
               Delete
             </button>

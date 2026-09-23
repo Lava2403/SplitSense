@@ -1,46 +1,76 @@
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("../services/authService");
+
+const {
+  JWT_SECRET,
+} = require("../services/authService");
+
+// REQUIRED AUTH
 
 const authenticate = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  const authHeader =
+    req.headers.authorization;
 
-  if (!authHeader?.startsWith("Bearer ")) {
+  if (
+    !authHeader?.startsWith("Bearer ")
+  ) {
     return res.status(401).json({
       success: false,
       message: "Authentication required.",
     });
   }
 
-  const token = authHeader.split(" ")[1];
+  const token =
+    authHeader.split(" ")[1];
 
   try {
-    req.user = jwt.verify(token, JWT_SECRET);
+    req.user = jwt.verify(
+      token,
+      JWT_SECRET
+    );
+
     next();
   } catch {
     return res.status(401).json({
       success: false,
-      message: "Invalid or expired token.",
+      message:
+        "Invalid or expired token.",
     });
   }
 };
 
-const optionalAuth = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+// OPTIONAL AUTH
 
-  if (!authHeader?.startsWith("Bearer ")) {
+const optionalAuth = (
+  req,
+  res,
+  next
+) => {
+  const authHeader =
+    req.headers.authorization;
+
+  if (
+    !authHeader?.startsWith("Bearer ")
+  ) {
     return next();
   }
 
-  const token = authHeader.split(" ")[1];
+  const token =
+    authHeader.split(" ")[1];
 
   try {
-    req.user = jwt.verify(token, JWT_SECRET);
+    req.user = jwt.verify(
+      token,
+      JWT_SECRET
+    );
   } catch {
-    // Keep public routes working if a stale token is sent.
+    // Keep public routes working
+    // if a stale token is sent.
   }
 
   next();
 };
 
 module.exports = authenticate;
-module.exports.optionalAuth = optionalAuth;
+
+module.exports.optionalAuth =
+  optionalAuth;

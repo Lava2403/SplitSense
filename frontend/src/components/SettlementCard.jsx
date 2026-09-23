@@ -1,85 +1,65 @@
 import { Clock } from "lucide-react";
 
-function SettlementCard({ settlement }) {
-
+function SettlementCard({ settlement, onSettle }) {
   const pay = settlement.type === "pay";
+  const person = pay ? settlement.receiver : settlement.payer;
+  const initial = person?.charAt(0)?.toUpperCase() || "?";
 
   return (
-
-    <div className="bg-white rounded-3xl shadow-md border border-gray-200 p-6 hover:shadow-xl transition duration-300">
-
-      <div className="flex justify-between items-start">
-
-        {/* Left */}
-
-        <div className="flex gap-4">
-
-          <div className="w-14 h-14 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xl font-bold">
-
-            {settlement.person[0]}
-
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4 hover:shadow-md transition">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            className={`w-11 h-11 shrink-0 rounded-full flex items-center justify-center text-base font-semibold ${
+              pay
+                ? "bg-red-50 text-red-600"
+                : "bg-emerald-50 text-emerald-600"
+            }`}
+          >
+            {initial}
           </div>
 
-          <div>
-
-            <h2 className="text-xl font-semibold">
-
-              {settlement.person}
-
-            </h2>
-
-            <span className="inline-block mt-1 bg-emerald-100 text-emerald-700 text-sm px-3 py-1 rounded-full">
-
-              {settlement.group}
-
-            </span>
-
-            <p
-              className={`mt-4 text-lg font-semibold ${
-                pay
-                  ? "text-red-600"
-                  : "text-green-600"
-              }`}
-            >
-
-              {pay
-                ? `You owe ₹${settlement.amount}`
-                : `${settlement.person} owes you ₹${settlement.amount}`}
-
-            </p>
-
-            <div className="flex items-center gap-2 text-gray-400 text-sm mt-3">
-
-              <Clock size={15} />
-
-              Last activity 2 days ago
-
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="font-semibold text-slate-900 truncate">
+                {person}
+              </h2>
+              <span className="bg-slate-100 text-slate-600 text-xs px-2.5 py-1 rounded-full">
+                {settlement.group}
+              </span>
             </div>
 
-          </div>
+            <p
+              className={`text-sm font-semibold mt-1 ${
+                pay ? "text-red-600" : "text-emerald-600"
+              }`}
+            >
+              {pay
+                ? `You owe ₹${Number(settlement.amount).toFixed(2)}`
+                : `${person} owes you ₹${Number(settlement.amount).toFixed(2)}`}
+            </p>
 
+            <div className="flex items-center gap-1.5 text-slate-400 text-xs mt-1.5">
+              <Clock size={13} />
+              Pending settlement
+            </div>
+          </div>
         </div>
 
-        {/* Right */}
-
         <button
-          className={`px-5 py-2 rounded-xl text-white font-medium transition ${
+          onClick={() => pay && onSettle(settlement)}
+          disabled={!pay}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap ${
             pay
-              ? "bg-red-500 hover:bg-red-600"
-              : "bg-emerald-600 hover:bg-emerald-700"
+              ? "bg-red-500 hover:bg-red-600 text-white"
+              : "bg-emerald-50 text-emerald-700 cursor-not-allowed"
           }`}
         >
-
-          {pay ? "Settle Up" : "Send Reminder"}
-
+          {pay ? "Record Payment" : "Awaiting Payment"}
         </button>
-
       </div>
-
     </div>
-
   );
-
 }
 
 export default SettlementCard;
