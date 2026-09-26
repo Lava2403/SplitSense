@@ -47,7 +47,7 @@ function Sidebar() {
       icon: Wallet,
     },
     {
-      label: "Insights",
+      label: "AI Insights",
       path: "/insights",
       icon: Sparkles,
     }
