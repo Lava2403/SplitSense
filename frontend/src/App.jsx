@@ -10,18 +10,18 @@ import ExpensesPage from "./pages/ExpensesPage";
 import TestApi from "./pages/TestApi";
 import GroupsPage from "./pages/GroupsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { isAuthenticated } from "./utils/auth";
+//import { isAuthenticated } from "./utils/auth";
 import SettlementPage from "./pages/SettlementPage";
 import BudgetPlanner from "./pages/BudgetPlanner";
 import Insights from "./pages/Insights";
 
-function PublicOnlyRoute({ children }) {
-  if (isAuthenticated()) {
-    return <Navigate to="/dashboard" replace />;
-  }
+// function PublicOnlyRoute({ children }) {
+//   if (isAuthenticated()) {
+//     return <Navigate to="/dashboard" replace />;
+//   }
 
-  return children;
-}
+//   return children;
+// }
 
 function App() {
   return (
@@ -32,27 +32,21 @@ function App() {
         <Route
           path="/login"
           element={
-            <PublicOnlyRoute>
               <Login />
-            </PublicOnlyRoute>
           }
         />
 
         <Route
           path="/signup"
           element={
-            <PublicOnlyRoute>
               <Signup />
-            </PublicOnlyRoute>
           }
         />
 
         <Route
           path="/forgot-password"
           element={
-            <PublicOnlyRoute>
               <ForgotPassword />
-            </PublicOnlyRoute>
           }
         />
 
